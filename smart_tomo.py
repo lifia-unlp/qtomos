@@ -1,5 +1,5 @@
 from SmartGhz import SmartGhz
-from spinqit import NMRConfig, get_basic_simulator, get_compiler, BasicSimulatorConfig, get_nmr
+from spinqit import NMRConfig, get_basic_simulator, get_compiler, BasicSimulatorConfig, get_nmr, draw as sq_draw
 
 import json
 import argparse
@@ -63,6 +63,13 @@ def run(c: SmartGhz):
     resultado = engine.execute(exe, config)
     return resultado.counts
 
+def draw(c: SmartGhz):
+    compiler = get_compiler('native')
+    ir = compiler.compile(c, level=0)
+    filename = f"{c.name.replace(' ', '_')}.png"
+    sq_draw(ir, filename=filename)
+    print(f"Circuit drawing saved to {filename}")
+
 def normalize_counts(counts):
     return {
         str(bitstring): int(count)
@@ -72,7 +79,10 @@ def normalize_counts(counts):
 def measure_observable(observable, mode):
     c: SmartGhz = SmartGhz(len(observable), f"{observable} of a Ghz")
     c.prepare_ghz_observation(observable)
-    if mode == "qpu":
+    if mode == "draw":
+        draw(c)
+        return {observable: {}}
+    elif mode == "qpu":
         counts = run(c)
     else:
         counts = simulate(c)
@@ -87,7 +97,7 @@ def full(mode, full_qubits):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run SpinQ Tomography")
-    parser.add_argument("-m", "--mode", choices=["sim", "qpu"], default="sim", help="Execution mode: sim (simulator) or qpu (real computer)")
+    parser.add_argument("-m", "--mode", choices=["sim", "qpu", "draw"], default="sim", help="Execution mode: sim (simulator), qpu (real computer), or draw (print circuit)")
     
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-f","--full", type=int, choices=[2, 3], help="Number of qubits for full tomography (2 or 3)")
