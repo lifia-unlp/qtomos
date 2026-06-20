@@ -1,3 +1,5 @@
+#SmartGhz.py
+
 from spinqit import Circuit
 from spinqit import H, CX, Sd, X, Y, Z
 
@@ -15,16 +17,14 @@ class SmartGhz(Circuit):
             self.append(CX, [self.reg[0], self.reg[i]])
 
     def observe_X_and_change_base(self, qubit: int):
-        self << (X, self.reg[qubit])
         self << (H, self.reg[qubit])
 
     def observe_Y_and_change_base(self, qubit: int):
-        self << (Y, self.reg[qubit])
         self << (Sd, self.reg[qubit])
         self << (H, self.reg[qubit])
 
     def observe_Z_and_change_base(self, qubit: int):
-        self << (Z, self.reg[qubit])
+        pass
 
     def prepare_ghz_observation(self, observable: str):
         basis_change = {

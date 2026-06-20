@@ -1,3 +1,5 @@
+#smart_tomo.py
+
 from SmartGhz import SmartGhz
 from spinqit import NMRConfig, get_basic_simulator, get_compiler, BasicSimulatorConfig, get_nmr, draw as sq_draw
 
