@@ -45,3 +45,6 @@ torch==2.4.1
 typing_extensions==4.13.2
 urllib3==2.2.3
 zipp==3.20.2
+scipy
+numpy
+matplotlib

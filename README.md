@@ -16,11 +16,19 @@ pip install -r requirements.txt
 
 On Arm based Macs, you'll have issues with the default location of SPinQit libraries. Use the ```fix-spinqit-macos-arm.sh```script to fix it (changes will only affect that venv)
 
-# First check
+# Quantum State Tomography Workflow
 
-The first time you run it, it may take longer (maybe spinq is downloading something else?)
+Quantum State Tomography with this toolset is a two-phase process:
+1. **Data Acquisition (`acquire.py`)**: Run quantum circuits on a simulator or the real SpinQ hardware to gather measurement statistics for a complete set of Pauli observables.
+2. **State Reconstruction (`reconstruct.py`)**: Use the acquired measurement data to mathematically reconstruct the density matrix of the quantum state.
 
-## Simulate Acquisition
+---
+
+## Phase 1: Data Acquisition
+
+The first time you run `acquire.py`, it may take longer (the SpinQ SDK might be downloading required assets).
+
+### Simulate Acquisition
 
 To run a simulation for a specific observable (e.g., `XX`):
 ```bash
@@ -32,7 +40,7 @@ By default, the measurement bitstrings use Big-Endian format (qubit 0 is the lef
 python acquire.py --mode sim --single XX --endian little
 ```
 
-## Acquire Data from the QPU
+### Acquire Data from the QPU
 
 Before running on the real hardware (QPU), you need to configure your environment variables. 
 Copy the `.env.example` file to `.env` and fill in your connection details:
@@ -54,14 +62,14 @@ Then, to acquire data for the same specific observable on the real hardware:
 python acquire.py --mode qpu --single XX
 ```
 
-## Drawing Circuits
+### Drawing Circuits
 
 To generate a visual representation of the quantum circuit instead of simulating it or running it on the QPU, use the `draw` mode. This will save a `.png` image of the circuit in your current directory (e.g., `XX_of_a_Ghz.png`):
 ```bash
 python acquire.py --mode draw --single XX
 ```
 
-## Full Tomographic Acquisition
+### Full Tomographic Acquisition
 
 To perform a full tomographic acquisition (all observables), specify the number of qubits using the `--full` argument (defaults to 3 if omitted):
 
@@ -73,7 +81,7 @@ python acquire.py --mode sim --full 2
 python acquire.py --mode qpu --full 3
 ```
 
-## Saving Output to a File
+### Saving Output to a File
 
 Since the script outputs standard JSON, you can easily save the results of a full acquisition (or a single observable) to a file by redirecting standard output:
 
@@ -82,7 +90,7 @@ Since the script outputs standard JSON, you can easily save the results of a ful
 python acquire.py --mode qpu --full 3 > qpu_results_3q.json
 ```
 
-## Help
+### Help (acquire.py)
 
 For a complete list of options, use the `--help` flag:
 
@@ -102,4 +110,51 @@ optional arguments:
                         Number of qubits for full tomography (2 or 3)
   -s SINGLE, --single SINGLE
                         Measure a single observable (e.g., XX, XYZ)
+```
+
+---
+
+## Phase 2: State Reconstruction
+
+After acquiring the JSON data, use `reconstruct.py` to reconstruct the density matrix of the state.
+
+### Basic Usage
+
+You can reconstruct the state using the default Maximum Likelihood Estimation (MLE) method, which guarantees a valid, physical density matrix:
+```bash
+python reconstruct.py --file qpu_results_3q.json
+```
+
+### Methods
+
+You can choose between `linear` (Linear Inversion) or `mle` (Maximum Likelihood Estimation) using the `--method` flag:
+```bash
+python reconstruct.py --file qpu_results_3q.json --method linear
+```
+
+### Plotting
+
+To visualize the reconstructed density matrix as a 3D "Cityscape" bar chart (showing real and imaginary parts), append the `--plot` flag:
+```bash
+python reconstruct.py --file qpu_results_3q.json --plot
+```
+
+### Help (reconstruct.py)
+
+For a complete list of options:
+
+```bash
+$ python reconstruct.py --help
+usage: reconstruct.py [-h] -f FILE [-e {big,little}] [-m {linear,mle}] [-p]
+
+State Reconstruction for SpinQ Tomography
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f FILE, --file FILE  Input JSON file containing measurement counts
+  -e {big,little}, --endian {big,little}
+                        Endianness of the input data
+  -m {linear,mle}, --method {linear,mle}
+                        Reconstruction method (linear or mle)
+  -p, --plot            Plot the density matrix cityscape
 ```
