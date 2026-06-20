@@ -20,19 +20,19 @@ On Arm based Macs, you'll have issues with the default location of SPinQit libra
 
 The first time you run it, it may take longer (maybe spinq is downloading something else?)
 
-## Running Simulations
+## Simulate Acquisition
 
 To run a simulation for a specific observable (e.g., `XX`):
 ```bash
-python smart_tomo.py --mode sim --single XX
+python acquire.py --mode sim --single XX
 ```
 
 By default, the measurement bitstrings use Big-Endian format (qubit 0 is the leftmost bit). If you prefer Little-Endian (qubit 0 is the rightmost bit, similar to Qiskit), use the `--endian little` flag:
 ```bash
-python smart_tomo.py --mode sim --single XX --endian little
+python acquire.py --mode sim --single XX --endian little
 ```
 
-## Running on the QPU
+## Acquire Data from the QPU
 
 Before running on the real hardware (QPU), you need to configure your environment variables. 
 Copy the `.env.example` file to `.env` and fill in your connection details:
@@ -49,37 +49,37 @@ USERNAME=your_username
 PASSWORD=your_password
 ```
 
-Then, to run the same specific observable on the real hardware:
+Then, to acquire data for the same specific observable on the real hardware:
 ```bash
-python smart_tomo.py --mode qpu --single XX
+python acquire.py --mode qpu --single XX
 ```
 
 ## Drawing Circuits
 
 To generate a visual representation of the quantum circuit instead of simulating it or running it on the QPU, use the `draw` mode. This will save a `.png` image of the circuit in your current directory (e.g., `XX_of_a_Ghz.png`):
 ```bash
-python smart_tomo.py --mode draw --single XX
+python acquire.py --mode draw --single XX
 ```
 
-## Running a Full Observation
+## Full Tomographic Acquisition
 
-To run a full tomography observation (all observables), specify the number of qubits using the `--full` argument (defaults to 3 if omitted):
+To perform a full tomographic acquisition (all observables), specify the number of qubits using the `--full` argument (defaults to 3 if omitted):
 
 ```bash
-# 2-qubit full tomography on simulator
-python smart_tomo.py --mode sim --full 2
+# 2-qubit full tomographic acquisition on simulator
+python acquire.py --mode sim --full 2
 
-# 3-qubit full tomography on QPU
-python smart_tomo.py --mode qpu --full 3
+# 3-qubit full tomographic acquisition on QPU
+python acquire.py --mode qpu --full 3
 ```
 
 ## Saving Output to a File
 
-Since the script outputs standard JSON, you can easily save the results of a full observation (or a single observable) to a file by redirecting standard output:
+Since the script outputs standard JSON, you can easily save the results of a full acquisition (or a single observable) to a file by redirecting standard output:
 
 ```bash
-# Save 3-qubit full tomography on QPU to a file
-python smart_tomo.py --mode qpu --full 3 > qpu_results_3q.json
+# Save 3-qubit full tomographic acquisition on QPU to a file
+python acquire.py --mode qpu --full 3 > qpu_results_3q.json
 ```
 
 ## Help
@@ -87,10 +87,10 @@ python smart_tomo.py --mode qpu --full 3 > qpu_results_3q.json
 For a complete list of options, use the `--help` flag:
 
 ```bash
-$ python smart_tomo.py --help
-usage: smart_tomo.py [-h] [-m {sim,qpu,draw}] [-e {big,little}] [-f {2,3} | -s SINGLE]
+$ python acquire.py --help
+usage: acquire.py [-h] [-m {sim,qpu,draw}] [-e {big,little}] [-f {2,3} | -s SINGLE]
 
-Run SpinQ Tomography
+Acquire SpinQ Tomographic Data
 
 optional arguments:
   -h, --help            show this help message and exit
