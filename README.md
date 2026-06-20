@@ -27,6 +27,11 @@ To run a simulation for a specific observable (e.g., `XX`):
 python smart_tomo.py --mode sim --single XX
 ```
 
+By default, the measurement bitstrings use Big-Endian format (qubit 0 is the leftmost bit). If you prefer Little-Endian (qubit 0 is the rightmost bit, similar to Qiskit), use the `--endian little` flag:
+```bash
+python smart_tomo.py --mode sim --single XX --endian little
+```
+
 ## Running on the QPU
 
 Before running on the real hardware (QPU), you need to configure your environment variables. 
@@ -83,7 +88,7 @@ For a complete list of options, use the `--help` flag:
 
 ```bash
 $ python smart_tomo.py --help
-usage: smart_tomo.py [-h] [-m {sim,qpu}] [-f {2,3} | -s SINGLE]
+usage: smart_tomo.py [-h] [-m {sim,qpu,draw}] [-e {big,little}] [-f {2,3} | -s SINGLE]
 
 Run SpinQ Tomography
 
@@ -91,6 +96,8 @@ optional arguments:
   -h, --help            show this help message and exit
   -m {sim,qpu,draw}, --mode {sim,qpu,draw}
                         Execution mode: sim (simulator), qpu (real computer), or draw (print circuit)
+  -e {big,little}, --endian {big,little}
+                        Endianness for output bitstrings: big (q[0] is leftmost) or little (q[0] is rightmost)
   -f {2,3}, --full {2,3}
                         Number of qubits for full tomography (2 or 3)
   -s SINGLE, --single SINGLE

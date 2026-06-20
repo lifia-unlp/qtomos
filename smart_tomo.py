@@ -70,13 +70,13 @@ def draw(c: SmartGhz):
     sq_draw(ir, filename=filename)
     print(f"Circuit drawing saved to {filename}")
 
-def normalize_counts(counts):
+def normalize_counts(counts, endian="big"):
     return {
-        str(bitstring): int(count)
+        str(bitstring) if endian == "big" else str(bitstring)[::-1]: int(count)
         for bitstring, count in counts.items()
     }
 
-def measure_observable(observable, mode):
+def measure_observable(observable, mode, endian="big"):
     c: SmartGhz = SmartGhz(len(observable), f"{observable} of a Ghz")
     c.prepare_ghz_observation(observable)
     if mode == "draw":
@@ -86,18 +86,19 @@ def measure_observable(observable, mode):
         counts = run(c)
     else:
         counts = simulate(c)
-    return {observable: normalize_counts(counts)}
+    return {observable: normalize_counts(counts, endian)}
 
-def full(mode, full_qubits):
+def full(mode, full_qubits, endian="big"):
     results = {}
     observables = TWO_QUBIT_OBSERVABLES if full_qubits == 2 else THREE_QUBIT_OBSERVABLES
     for observable in observables:
-        results.update(measure_observable(observable, mode))
+        results.update(measure_observable(observable, mode, endian))
     print(json.dumps(results, indent=2, sort_keys=True))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run SpinQ Tomography")
     parser.add_argument("-m", "--mode", choices=["sim", "qpu", "draw"], default="sim", help="Execution mode: sim (simulator), qpu (real computer), or draw (print circuit)")
+    parser.add_argument("-e", "--endian", choices=["big", "little"], default="big", help="Endianness for output bitstrings: big (q[0] is leftmost) or little (q[0] is rightmost)")
     
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-f","--full", type=int, choices=[2, 3], help="Number of qubits for full tomography (2 or 3)")
@@ -106,8 +107,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.single:
-        result = measure_observable(args.single, args.mode)
+        result = measure_observable(args.single, args.mode, args.endian)
         print(json.dumps(result, indent=2, sort_keys=True))
     else:
         full_qubits = args.full if args.full is not None else 3
-        full(args.mode, full_qubits)
+        full(args.mode, full_qubits, args.endian)
