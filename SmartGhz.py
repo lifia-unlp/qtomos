@@ -1,0 +1,39 @@
+from spinqit import Circuit
+from spinqit import H, CX, Sd, X, Y, Z
+
+class SmartGhz(Circuit):
+
+    def __init__(self, nqubits: int, name: str = 'smart_ghz'):
+            super().__init__(name)
+            self.nqubits = nqubits
+            self.reg = self.allocateQubits(nqubits)
+            self.ghz()
+
+    def ghz(self):
+        self << (H, self.reg[0])
+        for i in range(1, self.nqubits):
+            self.append(CX, [self.reg[0], self.reg[i]])
+
+    def observe_X_and_change_base(self, qubit: int):
+        self << (X, self.reg[qubit])
+        self << (H, self.reg[qubit])
+
+    def observe_Y_and_change_base(self, qubit: int):
+        self << (Y, self.reg[qubit])
+        self << (Sd, self.reg[qubit])
+        self << (H, self.reg[qubit])
+
+    def observe_Z_and_change_base(self, qubit: int):
+        self << (Z, self.reg[qubit])
+
+    def prepare_ghz_observation(self, observable: str):
+        basis_change = {
+            "X": self.observe_X_and_change_base,
+            "Y": self.observe_Y_and_change_base,
+            "Z": self.observe_Z_and_change_base,
+        }
+        for qubit_index in range(self.nqubits):
+            pauli = observable[qubit_index]
+            basis_change[pauli](qubit_index)       
+
+
