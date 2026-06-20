@@ -49,6 +49,13 @@ Then, to run the same specific observable on the real hardware:
 python smart_tomo.py --mode qpu --single XX
 ```
 
+## Drawing Circuits
+
+To generate a visual representation of the quantum circuit instead of simulating it or running it on the QPU, use the `draw` mode. This will save a `.png` image of the circuit in your current directory (e.g., `XX_of_a_Ghz.png`):
+```bash
+python smart_tomo.py --mode draw --single XX
+```
+
 ## Running a Full Observation
 
 To run a full tomography observation (all observables), specify the number of qubits using the `--full` argument (defaults to 3 if omitted):
@@ -82,8 +89,8 @@ Run SpinQ Tomography
 
 optional arguments:
   -h, --help            show this help message and exit
-  -m {sim,qpu}, --mode {sim,qpu}
-                        Execution mode: sim (simulator) or qpu (real computer)
+  -m {sim,qpu,draw}, --mode {sim,qpu,draw}
+                        Execution mode: sim (simulator), qpu (real computer), or draw (print circuit)
   -f {2,3}, --full {2,3}
                         Number of qubits for full tomography (2 or 3)
   -s SINGLE, --single SINGLE
