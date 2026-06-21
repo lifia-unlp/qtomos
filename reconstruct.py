@@ -4,17 +4,10 @@ import argparse
 import json
 import numpy as np
 
+import lib
+
 from lib.linear_inversion import LinearInversionStrategy
 from lib.mle_least_squares import MleLeastSquaresStrategy
-
-def ideal_ghz_state(n_qubits):
-    """Returns the density matrix of an ideal N-qubit GHZ state."""
-    dim = 2**n_qubits
-    state = np.zeros(dim, dtype=complex)
-    state[0] = 1.0 / np.sqrt(2)
-    state[-1] = 1.0 / np.sqrt(2)
-    rho = np.outer(state, state.conj())
-    return rho
 
 def fidelity(rho1, rho2):
     """Calculate the fidelity between a reconstructed state and an ideal pure state."""
@@ -92,11 +85,25 @@ def main():
     print(f"Reconstructing density matrix using {args.method.upper()} method...")
     rho = strategy.reconstruct(measurements, n_qubits, endian)
 
-    rho_ideal = ideal_ghz_state(n_qubits)
-    f_val = fidelity(rho, rho_ideal)
+    state_class_name = metadata.get("state", "Ghz")
+    state_class = getattr(lib, state_class_name, None)
+    
+    if state_class is not None:
+        state_obj = state_class(n_qubits)
+        rho_ideal = state_obj.ideal()
+        f_val = fidelity(rho, rho_ideal)
+        state_display_name = state_class_name
+    else:
+        rho_ideal = None
+        f_val = None
+        state_display_name = "unknown"
+        print(f"Warning: State class '{state_class_name}' not found in lib. Fidelity comparison skipped.")
 
     print("\n--- Reconstruction Results ---")
-    print(f"Fidelity w.r.t ideal {n_qubits}-qubit GHZ state: {f_val:.4f}")
+    if f_val is not None:
+        print(f"Fidelity w.r.t ideal {n_qubits}-qubit {state_display_name} state: {f_val:.4f}")
+    else:
+        print(f"Fidelity w.r.t ideal {n_qubits}-qubit {state_display_name} state: N/A")
     
     tr_rho = np.trace(rho)
     print(f"Trace: {tr_rho.real:.4f}")
@@ -110,7 +117,7 @@ def main():
     print(np.round(np.imag(rho), 4))
 
     if args.plot:
-        plot_density_matrix(rho, f"{n_qubits}-Qubit GHZ Reconstructed State ({args.method.upper()})")
+        plot_density_matrix(rho, f"{n_qubits}-Qubit {state_display_name} Reconstructed State ({args.method.upper()})")
 
 if __name__ == "__main__":
     main()

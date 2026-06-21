@@ -1,11 +1,12 @@
-# lib/smart_ghz.py
+# lib/ghz.py
 
+import numpy as np
 from spinqit import Circuit
 from spinqit import H, CX, Sd
 
-class SmartGhz(Circuit):
+class Ghz(Circuit):
 
-    def __init__(self, nqubits: int, name: str = 'smart_ghz'):
+    def __init__(self, nqubits: int, name: str = 'ghz'):
             super().__init__(name)
             self.nqubits = nqubits
             self.reg = self.allocateQubits(nqubits)
@@ -35,3 +36,12 @@ class SmartGhz(Circuit):
         for qubit_index in range(self.nqubits):
             pauli = observable[qubit_index]
             basis_change[pauli](qubit_index)
+
+    def ideal(self) -> np.ndarray:
+        """Returns the density matrix of the ideal GHZ state."""
+        dim = 2 ** self.nqubits
+        state = np.zeros(dim, dtype=complex)
+        state[0] = 1.0 / np.sqrt(2)
+        state[-1] = 1.0 / np.sqrt(2)
+        rho = np.outer(state, state.conj())
+        return rho

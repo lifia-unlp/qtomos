@@ -214,7 +214,7 @@ El código está estructurado de la siguiente manera:
 *   **`reconstruct.py`**: Script de entrada para la reconstrucción del estado cuántico. Carga los datos generados por `acquire.py` y delega la ejecución de la reconstrucción al algoritmo seleccionado mediante el patrón *Strategy*.
 *   **`lib/`**: Directorio contenedor de los módulos internos del proyecto:
     *   **`lib/__init__.py`**: Inicializador que expone a `lib` como un paquete en Python.
-    *   **`lib/smart_ghz.py`**: Define la clase `SmartGhz`, la cual especifica el circuito de preparación del estado GHZ y los cambios de base de medición.
+    *   **`lib/ghz.py`**: Define la clase `Ghz`, la cual especifica el circuito de preparación del estado GHZ, los cambios de base de medición y su representación de densidad teórica ideal.
     *   **`lib/reconstruction_strategy.py`**: Define la interfaz abstracta `ReconstructionStrategy` que deben implementar todos los métodos de reconstrucción.
     *   **`lib/linear_inversion.py`**: Implementa la estrategia de reconstrucción mediante inversión lineal de operadores de Pauli.
     *   **`lib/mle_least_squares.py`**: Implementa la estrategia de reconstrucción mediante mínimos cuadrados ponderados restringidos (MLE basado en Cholesky).

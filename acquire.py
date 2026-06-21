@@ -1,6 +1,6 @@
 #acquire.py
 
-from lib.smart_ghz import SmartGhz
+from lib.ghz import Ghz
 from spinqit import NMRConfig, get_basic_simulator, get_compiler, BasicSimulatorConfig, get_nmr, draw as sq_draw
 
 import json
@@ -32,7 +32,7 @@ THREE_QUBIT_OBSERVABLES = [
     "ZZX", "ZZY", "ZZZ",
 ]
 
-def simulate(c: SmartGhz, shots: int = 1024) :
+def simulate(c: Ghz, shots: int = 1024) :
     comp = get_compiler("native")
     engine = get_basic_simulator()
     # Compile
@@ -44,7 +44,7 @@ def simulate(c: SmartGhz, shots: int = 1024) :
     result = engine.execute(exe, config)
     return result.counts
 
-def run(c: SmartGhz, shots: int = 1024):
+def run(c: Ghz, shots: int = 1024):
     IP = os.environ.get("IP")
     PORT = int(os.environ.get("PORT"))
     USERNAME = os.environ.get("USERNAME")        
@@ -65,7 +65,7 @@ def run(c: SmartGhz, shots: int = 1024):
     resultado = engine.execute(exe, config)
     return resultado.counts
 
-def draw(c: SmartGhz):
+def draw(c: Ghz):
     compiler = get_compiler('native')
     ir = compiler.compile(c, level=0)
     filename = f"{c.name.replace(' ', '_')}.png"
@@ -79,7 +79,7 @@ def normalize_counts(counts, endian="big"):
     }
 
 def measure_observable(observable, mode, endian="big", shots: int = 1024):
-    c: SmartGhz = SmartGhz(len(observable), f"{observable} of a Ghz")
+    c: Ghz = Ghz(len(observable), f"{observable} of a Ghz")
     c.prepare_ghz_observation(observable)
     if mode == "draw":
         draw(c)
@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
     output = {
         "metadata": {
-            "state": "Ghz",
+            "state": Ghz.__name__,
             "qubits": qubits,
             "endian": args.endian,
             "shots": args.shots,
