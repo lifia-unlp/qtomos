@@ -1,7 +1,7 @@
-#SmartGhz.py
+# lib/smart_ghz.py
 
 from spinqit import Circuit
-from spinqit import H, CX, Sd, X, Y, Z
+from spinqit import H, CX, Sd
 
 class SmartGhz(Circuit):
 
@@ -34,6 +34,4 @@ class SmartGhz(Circuit):
         }
         for qubit_index in range(self.nqubits):
             pauli = observable[qubit_index]
-            basis_change[pauli](qubit_index)       
-
-
+            basis_change[pauli](qubit_index)

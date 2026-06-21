@@ -81,13 +81,49 @@ python acquire.py --mode sim --full 2
 python acquire.py --mode qpu --full 3
 ```
 
-### Saving Output to a File
+### Parametrizing Shots
 
-Since the script outputs standard JSON, you can easily save the results of a full acquisition (or a single observable) to a file by redirecting standard output:
+By default, execution uses `1024` shots. You can customize the number of shots using the `--shots` flag:
+
+```bash
+python acquire.py --mode sim --full 2 --shots 500
+```
+
+### Saving Output and Format
+
+Since the script outputs standard JSON, you can easily save the results to a file by redirecting standard output:
 
 ```bash
 # Save 3-qubit full tomographic acquisition on QPU to a file
 python acquire.py --mode qpu --full 3 > qpu_results_3q.json
+```
+
+The output JSON file has the following structure:
+
+```json
+{
+  "metadata": {
+    "state": "Ghz",
+    "qubits": 2,
+    "endian": "big",
+    "shots": 500,
+    "start-timestamp": "2026-06-20T22:07:15.649607-03:00",
+    "end-timestamp": "2026-06-20T22:07:15.650332-03:00"
+  },
+  "measurements": {
+    "XX": {
+      "00": 250,
+      "11": 250
+    },
+    "XY": {
+      "00": 125,
+      "01": 125,
+      "10": 125,
+      "11": 125
+    },
+    ...
+  }
+}
 ```
 
 ### Help (acquire.py)
@@ -96,16 +132,20 @@ For a complete list of options, use the `--help` flag:
 
 ```bash
 $ python acquire.py --help
-usage: acquire.py [-h] [-m {sim,qpu,draw}] [-e {big,little}] [-f {2,3} | -s SINGLE]
+usage: acquire.py [-h] [-m {sim,qpu,draw}] [-e {big,little}] [--shots SHOTS]
+                  [-f {2,3} | -s SINGLE]
 
 Acquire SpinQ Tomographic Data
 
 optional arguments:
   -h, --help            show this help message and exit
   -m {sim,qpu,draw}, --mode {sim,qpu,draw}
-                        Execution mode: sim (simulator), qpu (real computer), or draw (print circuit)
+                        Execution mode: sim (simulator), qpu (real computer),
+                        or draw (print circuit)
   -e {big,little}, --endian {big,little}
-                        Endianness for output bitstrings: big (q[0] is leftmost) or little (q[0] is rightmost)
+                        Endianness for output bitstrings: big (q[0] is
+                        leftmost) or little (q[0] is rightmost)
+  --shots SHOTS         Number of shots for execution
   -f {2,3}, --full {2,3}
                         Number of qubits for full tomography (2 or 3)
   -s SINGLE, --single SINGLE
@@ -120,10 +160,17 @@ After acquiring the JSON data, use `reconstruct.py` to reconstruct the density m
 
 ### Basic Usage
 
-You can reconstruct the state using the default Maximum Likelihood Estimation (MLE) method, which guarantees a valid, physical density matrix:
+You can reconstruct the state using the default Maximum Likelihood Estimation (MLE) method. Since the JSON output of `acquire.py` contains all the execution metadata, `reconstruct.py` automatically reads the number of qubits and the endianness from the file, meaning you do not need to specify them as parameters:
+
 ```bash
 python reconstruct.py --file qpu_results_3q.json
 ```
+
+### Estimación de Operadores Marginales y Promediado
+
+Para realizar una reconstrucción completa por mínimos cuadrados o MLE sobre la base de operadores de Pauli, `reconstruct.py` requiere estimar el valor de expectación de los $4^N$ operadores posibles (incluyendo aquellos que contienen el operador de identidad `I`, como `XI` o `IZZ`). 
+
+Dado que `acquire.py` solo realiza mediciones sobre los observables completos (sin `I`), los valores de expectación marginales se extraen a partir de estas mediciones completas ignorando los qubits en donde actúa la identidad. Por ejemplo, la expectación del marginal `ZI` para 2 qubits se puede extraer de las mediciones de los observables completos `ZX`, `ZY` o `ZZ`. Para maximizar la precisión estadística y reducir la varianza del estimador, `reconstruct.py` busca todas las mediciones completas compatibles con un marginal determinado y calcula la media aritmética de sus valores de expectación individuales.
 
 ### Methods
 
@@ -145,16 +192,42 @@ For a complete list of options:
 
 ```bash
 $ python reconstruct.py --help
-usage: reconstruct.py [-h] -f FILE [-e {big,little}] [-m {linear,mle}] [-p]
+usage: reconstruct.py [-h] -f FILE [-m {linear,mle}] [-p]
 
 State Reconstruction for SpinQ Tomography
 
 optional arguments:
   -h, --help            show this help message and exit
   -f FILE, --file FILE  Input JSON file containing measurement counts
-  -e {big,little}, --endian {big,little}
-                        Endianness of the input data
   -m {linear,mle}, --method {linear,mle}
                         Reconstruction method (linear or mle)
   -p, --plot            Plot the density matrix cityscape
+```
+
+---
+
+## Estructura del Proyecto
+
+El código está estructurado de la siguiente manera:
+
+*   **`acquire.py`**: Script de entrada para la fase de adquisición. Configura las opciones de ejecución (simulador, QPU real o graficado de circuitos), la cantidad de disparos (`--shots`) y la endianness, imprimiendo el resultado JSON estructurado con metadatos.
+*   **`reconstruct.py`**: Script de entrada para la reconstrucción del estado cuántico. Carga los datos generados por `acquire.py` y delega la ejecución de la reconstrucción al algoritmo seleccionado mediante el patrón *Strategy*.
+*   **`lib/`**: Directorio contenedor de los módulos internos del proyecto:
+    *   **`lib/__init__.py`**: Inicializador que expone a `lib` como un paquete en Python.
+    *   **`lib/smart_ghz.py`**: Define la clase `SmartGhz`, la cual especifica el circuito de preparación del estado GHZ y los cambios de base de medición.
+    *   **`lib/reconstruction_strategy.py`**: Define la interfaz abstracta `ReconstructionStrategy` que deben implementar todos los métodos de reconstrucción.
+    *   **`lib/linear_inversion.py`**: Implementa la estrategia de reconstrucción mediante inversión lineal de operadores de Pauli.
+    *   **`lib/mle_least_squares.py`**: Implementa la estrategia de reconstrucción mediante mínimos cuadrados ponderados restringidos (MLE basado en Cholesky).
+    *   **`lib/utils.py`**: Contiene todas las funciones matemáticas compartidas, incluyendo la generación de la base de Pauli, filtros de coincidencia y el cálculo promedio de expectaciones para operadores marginales.
+*   **`tests/`**: Directorio de pruebas automatizadas:
+    *   **`tests/test_tomography.py`**: Suite de pruebas unitarias para validar las operaciones matemáticas de soporte y la integridad de las estrategias de reconstrucción de estado.
+
+---
+
+## Ejecución de Pruebas Unitarias
+
+Para correr las pruebas unitarias automatizadas y verificar la consistencia del proyecto, ejecuta el siguiente comando desde la raíz del repositorio:
+
+```bash
+python tests/test_tomography.py
 ```
