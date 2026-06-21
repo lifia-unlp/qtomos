@@ -2,9 +2,9 @@
 
 SpinQit currently works only on Python 3.8. 
 
-The file .python-version will most likely take care of setting up your environment with the correct Python version (if 3.8 is installed on your machine; if not, use pyenv, Conda or wathever manager you preffer to install it). 
+The file .python-version will most likely take care of setting up your environment with the correct Python version (if 3.8 is installed on your machine; if not, use pyenv, Conda or whatever manager you prefer to install it). 
 
-We suggest install everything in a virtual environment. 
+We suggest installing everything in a virtual environment. 
 
 To set up your environment, run:
 
@@ -21,6 +21,8 @@ On Arm based Macs, you'll have issues with the default location of SPinQit libra
 Quantum State Tomography with this toolset is a two-phase process:
 1. **Data Acquisition (`acquire.py`)**: Run quantum circuits on a simulator or the real SpinQ hardware to gather measurement statistics for a complete set of Pauli observables.
 2. **State Reconstruction (`reconstruct.py`)**: Use the acquired measurement data to mathematically reconstruct the density matrix of the quantum state.
+
+Currently, data acquisition and reconstruction are configured for the GHZ (Greenberger-Horne-Zeilinger) state of 2 and 3 qubits. Future versions of this toolset will support other well-known quantum states.
 
 ---
 
@@ -160,24 +162,21 @@ After acquiring the JSON data, use `reconstruct.py` to reconstruct the density m
 
 ### Basic Usage
 
-You can reconstruct the state using the default Maximum Likelihood Estimation (MLE) method. Since the JSON output of `acquire.py` contains all the execution metadata, `reconstruct.py` automatically reads the number of qubits and the endianness from the file, meaning you do not need to specify them as parameters:
+You can reconstruct the state using either Maximum Likelihood Estimation (MLE) or Linear Inversion (linear). By default, MLE is used. Since the JSON output of `acquire.py` contains all the execution metadata, `reconstruct.py` automatically reads the number of qubits and the endianness from the file, meaning you do not need to specify them as parameters:
 
 ```bash
+# Reconstruct using the default MLE method
 python reconstruct.py --file qpu_results_3q.json
-```
 
-### Estimación de Operadores Marginales y Promediado
-
-Para realizar una reconstrucción completa por mínimos cuadrados o MLE sobre la base de operadores de Pauli, `reconstruct.py` requiere estimar el valor de expectación de los $4^N$ operadores posibles (incluyendo aquellos que contienen el operador de identidad `I`, como `XI` o `IZZ`). 
-
-Dado que `acquire.py` solo realiza mediciones sobre los observables completos (sin `I`), los valores de expectación marginales se extraen a partir de estas mediciones completas ignorando los qubits en donde actúa la identidad. Por ejemplo, la expectación del marginal `ZI` para 2 qubits se puede extraer de las mediciones de los observables completos `ZX`, `ZY` o `ZZ`. Para maximizar la precisión estadística y reducir la varianza del estimador, `reconstruct.py` busca todas las mediciones completas compatibles con un marginal determinado y calcula la media aritmética de sus valores de expectación individuales.
-
-### Methods
-
-You can choose between `linear` (Linear Inversion) or `mle` (Maximum Likelihood Estimation) using the `--method` flag:
-```bash
+# Reconstruct using the Linear Inversion method
 python reconstruct.py --file qpu_results_3q.json --method linear
 ```
+
+### Marginal Operator Estimation and Averaging
+
+To perform a complete reconstruction using linear inversion or MLE over the Pauli basis, `reconstruct.py` needs to estimate the expectation value of all $4^N$ possible operators (including those containing the identity operator `I`, such as `XI` or `IZZ`).
+
+Since `acquire.py` only performs measurements on complete observables (without `I`), the marginal expectation values are extracted from these complete measurements by ignoring the qubits where the identity acts. For instance, the expectation of the marginal `ZI` for 2 qubits can be extracted from measurements of the complete observables `ZX`, `ZY`, or `ZZ`. To maximize statistical precision and reduce estimator variance, `reconstruct.py` finds all complete measurements compatible with a given marginal and computes the arithmetic mean of their individual expectation values.
 
 ### Plotting
 
@@ -206,27 +205,27 @@ optional arguments:
 
 ---
 
-## Estructura del Proyecto
+## Project Structure
 
-El código está estructurado de la siguiente manera:
+The codebase is structured as follows:
 
-*   **`acquire.py`**: Script de entrada para la fase de adquisición. Configura las opciones de ejecución (simulador, QPU real o graficado de circuitos), la cantidad de disparos (`--shots`) y la endianness, imprimiendo el resultado JSON estructurado con metadatos.
-*   **`reconstruct.py`**: Script de entrada para la reconstrucción del estado cuántico. Carga los datos generados por `acquire.py` y delega la ejecución de la reconstrucción al algoritmo seleccionado mediante el patrón *Strategy*.
-*   **`lib/`**: Directorio contenedor de los módulos internos del proyecto:
-    *   **`lib/__init__.py`**: Inicializador que expone a `lib` como un paquete en Python.
-    *   **`lib/ghz.py`**: Define la clase `Ghz`, la cual especifica el circuito de preparación del estado GHZ, los cambios de base de medición y su representación de densidad teórica ideal.
-    *   **`lib/reconstruction_strategy.py`**: Define la interfaz abstracta `ReconstructionStrategy` que deben implementar todos los métodos de reconstrucción.
-    *   **`lib/linear_inversion.py`**: Implementa la estrategia de reconstrucción mediante inversión lineal de operadores de Pauli.
-    *   **`lib/mle_least_squares.py`**: Implementa la estrategia de reconstrucción mediante mínimos cuadrados ponderados restringidos (MLE basado en Cholesky).
-    *   **`lib/utils.py`**: Contiene todas las funciones matemáticas compartidas, incluyendo la generación de la base de Pauli, filtros de coincidencia y el cálculo promedio de expectaciones para operadores marginales.
-*   **`tests/`**: Directorio de pruebas automatizadas:
-    *   **`tests/test_tomography.py`**: Suite de pruebas unitarias para validar las operaciones matemáticas de soporte y la integridad de las estrategias de reconstrucción de estado.
+*   **`acquire.py`**: Entry-point script for the data acquisition phase. It configures the execution options (simulator, real QPU, or circuit drawing), the number of shots (`--shots`), and the endianness, printing the structured JSON output with metadata.
+*   **`reconstruct.py`**: Entry-point script for quantum state reconstruction. It loads the data generated by `acquire.py` and delegates the reconstruction to the selected algorithm using the *Strategy* pattern.
+*   **`lib/`**: Directory containing the project's internal modules:
+    *   **`lib/__init__.py`**: Initializer that exposes `lib` as a Python package.
+    *   **`lib/ghz.py`**: Defines the `Ghz` class, which specifies the GHZ state preparation circuit, measurement basis changes, and its ideal theoretical density matrix representation.
+    *   **`lib/reconstruction_strategy.py`**: Defines the abstract `ReconstructionStrategy` interface that all reconstruction methods must implement.
+    *   **`lib/linear_inversion.py`**: Implements the reconstruction strategy using linear inversion of Pauli operators.
+    *   **`lib/mle_least_squares.py`**: Implements the reconstruction strategy using constrained weighted least squares (MLE based on Cholesky).
+    *   **`lib/utils.py`**: Contains all shared mathematical utilities, including Pauli basis generation, match filtering, and average expectation calculation for marginal operators.
+*   **`tests/`**: Directory for automated tests:
+    *   **`tests/test_tomography.py`**: Unit test suite to validate supporting mathematical operations and the integrity of the state reconstruction strategies.
 
 ---
 
-## Ejecución de Pruebas Unitarias
+## Running Unit Tests
 
-Para correr las pruebas unitarias automatizadas y verificar la consistencia del proyecto, ejecuta el siguiente comando desde la raíz del repositorio:
+To run the automated unit tests and verify the consistency of the project, execute the following command from the repository root:
 
 ```bash
 python tests/test_tomography.py
