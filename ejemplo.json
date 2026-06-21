@@ -226,11 +226,11 @@
     }
   },
   "metadata": {
-    "end-timestamp": "2026-06-20T22:51:26.716305-03:00",
+    "end-timestamp": "2026-06-20T23:24:33.826036-03:00",
     "endian": "big",
     "qubits": 3,
     "shots": 1024,
-    "start-timestamp": "2026-06-20T22:51:26.714173-03:00",
+    "start-timestamp": "2026-06-20T23:24:33.821733-03:00",
     "state": "Ghz"
   }
 }

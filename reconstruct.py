@@ -85,12 +85,15 @@ def main():
     print(f"Reconstructing density matrix using {args.method.upper()} method...")
     rho = strategy.reconstruct(measurements, n_qubits, endian)
 
+    # Use Python reflection to resolve the state class dynamically from the 'lib' package.
+    # This retrieves the class object (e.g., Ghz) matching the string name in metadata.
     state_class_name = metadata.get("state", "Ghz")
     state_class = getattr(lib, state_class_name, None)
     
+    # If the class exists in lib, call its static ideal method to generate 
+    # the density matrix, and compute the fidelity compared to the reconstructed state.
     if state_class is not None:
-        state_obj = state_class(n_qubits)
-        rho_ideal = state_obj.ideal()
+        rho_ideal = state_class.ideal(n_qubits)
         f_val = fidelity(rho, rho_ideal)
         state_display_name = state_class_name
     else:

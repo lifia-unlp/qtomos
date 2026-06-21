@@ -37,9 +37,10 @@ class Ghz(Circuit):
             pauli = observable[qubit_index]
             basis_change[pauli](qubit_index)
 
-    def ideal(self) -> np.ndarray:
+    @staticmethod
+    def ideal(n_qubits: int) -> np.ndarray:
         """Returns the density matrix of the ideal GHZ state."""
-        dim = 2 ** self.nqubits
+        dim = 2 ** n_qubits
         state = np.zeros(dim, dtype=complex)
         state[0] = 1.0 / np.sqrt(2)
         state[-1] = 1.0 / np.sqrt(2)
