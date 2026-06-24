@@ -1,0 +1,397 @@
+> Created connection with id 0
+> Current Clinet Using port: 61341
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
+> Created connection with id 1
+> Current Clinet Using port: 61403
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 2
+> Current Clinet Using port: 61512
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
+> Created connection with id 3
+> Current Clinet Using port: 61598
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 4
+> Current Clinet Using port: 61684
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 5
+> Current Clinet Using port: 62135
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 6
+> Current Clinet Using port: 62218
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 7
+> Current Clinet Using port: 62306
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
+> Created connection with id 8
+> Current Clinet Using port: 62408
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 9
+> Current Clinet Using port: 62706
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 10
+> Current Clinet Using port: 62793
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
+> Created connection with id 11
+> Current Clinet Using port: 62875
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 12
+> Current Clinet Using port: 62967
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 13
+> Current Clinet Using port: 63052
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 14
+> Current Clinet Using port: 63136
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 15
+> Current Clinet Using port: 63220
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 16
+> Current Clinet Using port: 63306
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 17
+> Current Clinet Using port: 63380
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 18
+> Current Clinet Using port: 63464
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
+> Created connection with id 19
+> Current Clinet Using port: 63552
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 20
+> Current Clinet Using port: 63631
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 21
+> Current Clinet Using port: 63713
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 22
+> Current Clinet Using port: 63802
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 23
+> Current Clinet Using port: 63883
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
+> Created connection with id 24
+> Current Clinet Using port: 63968
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 25
+> Current Clinet Using port: 64053
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 26
+> Current Clinet Using port: 64134
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
+{
+  "measurements": {
+    "XXX": {
+      "000": 201,
+      "001": 83,
+      "010": 78,
+      "011": 146,
+      "100": 134,
+      "101": 77,
+      "110": 120,
+      "111": 185
+    },
+    "XXY": {
+      "000": 115,
+      "001": 102,
+      "010": 92,
+      "011": 229,
+      "100": 109,
+      "101": 131,
+      "110": 141,
+      "111": 105
+    },
+    "XXZ": {
+      "000": 125,
+      "001": 124,
+      "010": 133,
+      "011": 138,
+      "100": 140,
+      "101": 114,
+      "110": 134,
+      "111": 116
+    },
+    "XYX": {
+      "000": 231,
+      "001": 55,
+      "010": 82,
+      "011": 181,
+      "100": 82,
+      "101": 130,
+      "110": 179,
+      "111": 84
+    },
+    "XYY": {
+      "000": 83,
+      "001": 186,
+      "010": 116,
+      "011": 239,
+      "100": 185,
+      "101": 56,
+      "110": 85,
+      "111": 74
+    },
+    "XYZ": {
+      "000": 81,
+      "001": 168,
+      "010": 137,
+      "011": 93,
+      "100": 71,
+      "101": 197,
+      "110": 176,
+      "111": 101
+    },
+    "XZX": {
+      "000": 86,
+      "001": 133,
+      "010": 145,
+      "011": 158,
+      "100": 100,
+      "101": 198,
+      "110": 102,
+      "111": 102
+    },
+    "XZY": {
+      "000": 97,
+      "001": 157,
+      "010": 189,
+      "011": 79,
+      "100": 82,
+      "101": 144,
+      "110": 121,
+      "111": 155
+    },
+    "XZZ": {
+      "000": 253,
+      "001": 87,
+      "010": 42,
+      "011": 196,
+      "100": 119,
+      "101": 88,
+      "110": 70,
+      "111": 169
+    },
+    "YXX": {
+      "000": 52,
+      "001": 149,
+      "010": 196,
+      "011": 88,
+      "100": 78,
+      "101": 256,
+      "110": 172,
+      "111": 33
+    },
+    "YXY": {
+      "000": 83,
+      "001": 268,
+      "010": 239,
+      "011": 56,
+      "100": 130,
+      "101": 51,
+      "110": 81,
+      "111": 116
+    },
+    "YXZ": {
+      "000": 217,
+      "001": 4,
+      "010": 2,
+      "011": 297,
+      "100": 323,
+      "101": 16,
+      "110": 6,
+      "111": 159
+    },
+    "YYX": {
+      "000": 69,
+      "001": 165,
+      "010": 183,
+      "011": 88,
+      "100": 268,
+      "101": 94,
+      "110": 104,
+      "111": 53
+    },
+    "YYY": {
+      "000": 161,
+      "001": 211,
+      "010": 96,
+      "011": 77,
+      "100": 127,
+      "101": 86,
+      "110": 134,
+      "111": 132
+    },
+    "YYZ": {
+      "000": 134,
+      "001": 166,
+      "010": 131,
+      "011": 89,
+      "100": 88,
+      "101": 107,
+      "110": 122,
+      "111": 187
+    },
+    "YZX": {
+      "000": 169,
+      "001": 67,
+      "010": 95,
+      "011": 204,
+      "100": 134,
+      "101": 142,
+      "110": 157,
+      "111": 56
+    },
+    "YZY": {
+      "000": 82,
+      "001": 192,
+      "010": 132,
+      "011": 161,
+      "100": 166,
+      "101": 63,
+      "110": 104,
+      "111": 124
+    },
+    "YZZ": {
+      "000": 166,
+      "001": 61,
+      "010": 164,
+      "011": 113,
+      "100": 104,
+      "101": 183,
+      "110": 69,
+      "111": 164
+    },
+    "ZXX": {
+      "000": 80,
+      "001": 80,
+      "010": 168,
+      "011": 152,
+      "100": 53,
+      "101": 125,
+      "110": 216,
+      "111": 150
+    },
+    "ZXY": {
+      "000": 96,
+      "001": 148,
+      "010": 190,
+      "011": 88,
+      "100": 78,
+      "101": 149,
+      "110": 198,
+      "111": 77
+    },
+    "ZXZ": {
+      "000": 176,
+      "001": 76,
+      "010": 188,
+      "011": 82,
+      "100": 156,
+      "101": 100,
+      "110": 60,
+      "111": 186
+    },
+    "ZYX": {
+      "000": 136,
+      "001": 142,
+      "010": 130,
+      "011": 130,
+      "100": 61,
+      "101": 69,
+      "110": 188,
+      "111": 168
+    },
+    "ZYY": {
+      "000": 170,
+      "001": 118,
+      "010": 131,
+      "011": 126,
+      "100": 151,
+      "101": 113,
+      "110": 134,
+      "111": 81
+    },
+    "ZYZ": {
+      "000": 109,
+      "001": 38,
+      "010": 145,
+      "011": 113,
+      "100": 169,
+      "101": 173,
+      "110": 60,
+      "111": 217
+    },
+    "ZZX": {
+      "000": 215,
+      "001": 131,
+      "010": 21,
+      "011": 27,
+      "100": 80,
+      "101": 52,
+      "110": 229,
+      "111": 269
+    },
+    "ZZY": {
+      "000": 232,
+      "001": 142,
+      "010": 38,
+      "011": 78,
+      "100": 29,
+      "101": 155,
+      "110": 134,
+      "111": 216
+    },
+    "ZZZ": {
+      "000": 353,
+      "001": 76,
+      "010": 24,
+      "011": 52,
+      "100": 99,
+      "101": 28,
+      "110": 15,
+      "111": 377
+    }
+  },
+  "metadata": {
+    "end-timestamp": "2026-06-24T15:20:19.086031-03:00",
+    "endian": "big",
+    "qubits": 3,
+    "shots": 1024,
+    "start-timestamp": "2026-06-24T14:25:34.243772-03:00",
+    "state": "Ghz"
+  }
+}
