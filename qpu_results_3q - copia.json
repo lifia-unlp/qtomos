@@ -1,3 +1,118 @@
+> Created connection with id 0
+> Current Clinet Using port: 61341
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
+> Created connection with id 1
+> Current Clinet Using port: 61403
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 2
+> Current Clinet Using port: 61512
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
+> Created connection with id 3
+> Current Clinet Using port: 61598
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 4
+> Current Clinet Using port: 61684
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 5
+> Current Clinet Using port: 62135
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 6
+> Current Clinet Using port: 62218
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 7
+> Current Clinet Using port: 62306
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
+> Created connection with id 8
+> Current Clinet Using port: 62408
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 9
+> Current Clinet Using port: 62706
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 10
+> Current Clinet Using port: 62793
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
+> Created connection with id 11
+> Current Clinet Using port: 62875
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 12
+> Current Clinet Using port: 62967
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 13
+> Current Clinet Using port: 63052
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 14
+> Current Clinet Using port: 63136
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 15
+> Current Clinet Using port: 63220
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 16
+> Current Clinet Using port: 63306
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 17
+> Current Clinet Using port: 63380
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 18
+> Current Clinet Using port: 63464
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
+> Created connection with id 19
+> Current Clinet Using port: 63552
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 20
+> Current Clinet Using port: 63631
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 21
+> Current Clinet Using port: 63713
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 22
+> Current Clinet Using port: 63802
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 23
+> Current Clinet Using port: 63883
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
+> Created connection with id 24
+> Current Clinet Using port: 63968
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 25
+> Current Clinet Using port: 64053
+Connect to server successfully!
+The connection has been closed!
+> Created connection with id 26
+> Current Clinet Using port: 64134
+Connect to server successfully!
+> Error sending message: invalid state
+The connection has been closed!
 {
   "measurements": {
     "XXX": {
