@@ -1,4 +1,4 @@
 # lib/__init__.py
 # Marks lib/ as a Python package.
 
-from lib.ghz import Ghz
+from lib.circuits_catalog import create_ghz

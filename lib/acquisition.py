@@ -1,10 +1,13 @@
 # lib/acquisition.py
 
-from lib.ghz import Ghz
-from spinqit import NMRConfig, get_basic_simulator, get_compiler, BasicSimulatorConfig, get_nmr, draw as sq_draw
+import copy
 import datetime
 import os
 from dotenv import load_dotenv
+
+from spinqit import NMRConfig, get_basic_simulator, get_compiler, BasicSimulatorConfig, get_nmr, draw as sq_draw, Circuit
+from spinqit import H, Sd, QasmBackend
+from spinqit.backend.nmr_backend import NMRBackend
 
 load_dotenv()
 
@@ -28,7 +31,26 @@ THREE_QUBIT_OBSERVABLES = [
     "ZZX", "ZZY", "ZZZ",
 ]
 
-def simulate(c: Ghz, shots: int = 1024):
+def append_observation_basis(circuit: Circuit, observable: str):
+    """
+    Appends the necessary gates to change the measurement basis 
+    to match the Pauli observable.
+    
+    This function applies the required gates (H for X, Sd+H for Y) sequentially 
+    to the first N qubits of the circuit, where N is the length of the observable string.
+    
+    Examples of `observable` strings: "XX", "XY", "XYZ", "ZZZ"
+    """
+    for qubit_index, pauli in enumerate(observable):
+        if pauli == "X":
+            circuit << (H, qubit_index)
+        elif pauli == "Y":
+            circuit << (Sd, qubit_index)
+            circuit << (H, qubit_index)
+        elif pauli == "Z":
+            pass
+
+def simulate(c: Circuit, shots: int = 1024):
     comp = get_compiler("native")
     engine = get_basic_simulator()
     # Compile
@@ -40,11 +62,16 @@ def simulate(c: Ghz, shots: int = 1024):
     result = engine.execute(exe, config)
     return result.counts
 
-def run(c: Ghz, shots: int = 1024):
-    IP = os.environ.get("IP")
-    PORT = int(os.environ.get("PORT"))
-    USERNAME = os.environ.get("USERNAME")        
-    PASSWORD = os.environ.get("PASSWORD")
+def run(c: Circuit, shots: int = 1024):
+    #IP = os.environ.get("IP")
+    #PORT = int(os.environ.get("PORT"))
+    #USERNAME = os.environ.get("USERNAME")        
+    #PASSWORD = os.environ.get("PASSWORD")
+    
+    IP = "192.168.172.246"
+    PORT = 50177
+    USERNAME = "holik"        
+    PASSWORD = "holikspinq"
         
     comp = get_compiler("native")
     optimization_level = 0
@@ -55,17 +82,18 @@ def run(c: Ghz, shots: int = 1024):
     config.configure_port(PORT)
     config.configure_account(USERNAME, PASSWORD)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    task_name = c.name
-    task_desc = f"Execution of {c.name} at {timestamp}"
+    task_name = getattr(c, 'name', "circuit")
+    task_desc = f"Execution of {task_name} at {timestamp}"
     config.configure_task(task_name, task_desc)
     config.configure_shots(shots) 
     resultado = engine.execute(exe, config)
     return resultado.counts
 
-def draw(c: Ghz):
+def draw(c: Circuit):
     compiler = get_compiler('native')
     ir = compiler.compile(c, level=0)
-    filename = f"{c.name.replace(' ', '_')}.png"
+    name = getattr(c, 'name', "circuit")
+    filename = f"{name.replace(' ', '_')}.png"
     sq_draw(ir, filename=filename)
     print(f"Circuit drawing saved to {filename}")
 
@@ -75,47 +103,87 @@ def normalize_counts(counts, endian="big"):
         for bitstring, count in counts.items()
     }
 
-def measure_observable(observable, mode, endian="big", shots: int = 1024):
-    c: Ghz = Ghz(len(observable), f"{observable} of a Ghz")
-    c.prepare_ghz_observation(observable)
+def measure_observable(circuit: Circuit, observable: str, mode: str, endian="big", shots: int = 1024):
+    circuit_name = getattr(circuit, 'name', 'circuit')
+    print(f"Starting measurement task for circuit '{circuit_name}', observable '{observable}'...")
+    
+    c = copy.deepcopy(circuit)
+    append_observation_basis(c, observable)
+
+    start_time = datetime.datetime.now().astimezone().isoformat()
+    
+    # Compile to get QASM representations
+    compiler = get_compiler('native')
+    ir = compiler.compile(c, level=0)
+    qasm_str = QasmBackend.convert_ir_to_qasm(ir)
+    
+    # Assemble to Native hardware IR and get Native QASM
+    ir_native = copy.deepcopy(ir)
+    try:
+        NMRBackend().assemble(ir_native)
+        native_qasm_str = QasmBackend.convert_ir_to_qasm(ir_native)
+    except Exception as e:
+        native_qasm_str = f"Error generating native QASM: {e}"
+
     if mode == "draw":
         draw(c)
-        return {observable: {}}
+        counts = {}
     elif mode == "qpu":
         counts = run(c, shots)
     else:
         counts = simulate(c, shots)
-    return {observable: normalize_counts(counts, endian)}
+        
+    end_time = datetime.datetime.now().astimezone().isoformat()
+    
+    print(f"Finished measurement task for circuit '{circuit_name}', observable '{observable}'.")
+    
+    return {
+        observable: {
+            "timestamps": {
+                "start": start_time,
+                "end": end_time
+            },
+            "counts": normalize_counts(counts, endian),
+            "qasm": qasm_str,
+            "native": native_qasm_str
+        }
+    }
 
-def full(mode, full_qubits, endian="big", shots: int = 1024):
+def full(circuit: Circuit, mode: str, endian="big", shots: int = 1024):
     results = {}
-    observables = TWO_QUBIT_OBSERVABLES if full_qubits == 2 else THREE_QUBIT_OBSERVABLES
+    qubits = circuit.qubits_num
+    observables = TWO_QUBIT_OBSERVABLES if qubits == 2 else THREE_QUBIT_OBSERVABLES
     for observable in observables:
-        results.update(measure_observable(observable, mode, endian, shots))
+        results.update(measure_observable(circuit, observable, mode, endian, shots))
     return results
 
-def acquire_tomography_data(mode, single=None, full_qubits=None, endian="big", shots=1024):
+def acquire_tomography_data(circuit: Circuit, mode: str, single=None, endian="big", shots=1024):
     """
     Acquires tomography data for either a single observable or a full set.
     Returns a dictionary containing the measurements and execution metadata.
     """
     start_time = datetime.datetime.now().astimezone().isoformat()
+    
     if single:
-        measurements = measure_observable(single, mode, endian, shots)
+        measurements = measure_observable(circuit, single, mode, endian, shots)
         qubits = len(single)
     else:
-        qubits = full_qubits if full_qubits is not None else 3
-        measurements = full(mode, qubits, endian, shots)
+        measurements = full(circuit, mode, endian, shots)
+        qubits = circuit.qubits_num
+        
     end_time = datetime.datetime.now().astimezone().isoformat()
 
     return {
         "metadata": {
-            "state": Ghz.__name__,
+            "circuit_name": getattr(circuit, 'name', "circuit"),
             "qubits": qubits,
-            "endian": endian,
+            "mode": mode,
             "shots": shots,
-            "start-timestamp": start_time,
-            "end-timestamp": end_time
+            "endian": endian,
+            "timestamps": {
+                "start": start_time,
+                "end": end_time
+            }
         },
         "measurements": measurements
     }

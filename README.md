@@ -181,7 +181,7 @@ The codebase is structured as follows:
 *   **`lib/`**: Directory containing the project's internal modules:
     *   **`lib/__init__.py`**: Initializer that exposes `lib` as a Python package.
     *   **`lib/acquisition.py`**: Contains the core logic and programmatic API (`acquire_tomography_data`) for executing the quantum circuits and gathering measurement statistics.
-    *   **`lib/ghz.py`**: Defines the `Ghz` class, which specifies the GHZ state preparation circuit, measurement basis changes, and its ideal theoretical density matrix representation.
+    *   **`lib/circuits_catalog.py`**: A catalog of pre-defined quantum circuits. Currently defines the `Ghz` class, which specifies the GHZ state preparation circuit.
     *   **`lib/utils.py`**: Contains all shared mathematical utilities, including Pauli basis generation, match filtering, and average expectation calculation for marginal operators.
 *   **`tests/`**: Directory for automated tests:
     *   **`tests/test_tomography.py`**: Unit test suite to validate supporting mathematical operations.
