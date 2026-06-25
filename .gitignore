@@ -21,7 +21,6 @@ __pycache__/
 .env.local
 .env.*
 !.env.example
-.env.example
 
 # ==========================================
 # Distribution / Packaging
