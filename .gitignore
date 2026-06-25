@@ -67,3 +67,8 @@ coverage.xml
 *.swp
 *.swo
 .DS_Store
+
+# ==========================================
+# Jupyter Notebook
+# ==========================================
+.ipynb_checkpoints/
