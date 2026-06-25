@@ -1,3 +1,27 @@
+# Quantum State Tomography
+
+Quantum State Tomography is the process of completely characterizing the quantum state of a system by performing a series of measurements on identical copies of the state. It allows us to mathematically reconstruct the density matrix, which fully describes the system.
+
+Quantum State Tomography is generally a two-phase process:
+1. **Data Acquisition**: Run quantum circuits on a simulator or real hardware to gather measurement statistics for a complete set of observables. In this toolset, we specifically use the complete set of tensor products of the non-identity Pauli matrices ($X, Y, Z$).
+2. **State Reconstruction**: Use the acquired measurement data to mathematically reconstruct the density matrix of the quantum state.
+
+> [!NOTE]
+> This toolset is solely focused on **Data Acquisition (`acquire.py`)**. State reconstruction is not handled by this repository.
+
+Currently, data acquisition is configured for the GHZ (Greenberger-Horne-Zeilinger) state of 2 and 3 qubits. Future versions of this toolset will support other well-known quantum states.
+
+This is now you basically use this tool:
+
+```bash
+# acquire data for the complete set of tensor products of the non-identity Pauli matrices (X, Y, Z), on the noiseless simulator, on a three qubit GHZ, using 500 shots for each measurement, sending the results to the standard output
+python acquire.py --mode sim --full 3 --shots 500
+```
+
+Read on to learn how to install and use this tool.
+
+---
+
 # Install
 
 SpinQit currently works only on Python 3.8. 
@@ -16,17 +40,9 @@ pip install -r requirements.txt
 
 On Arm based Macs, you'll have issues with the default location of SPinQit libraries. Use the ```fix-spinqit-macos-arm.sh```script to fix it (changes will only affect that venv)
 
-# Quantum State Tomography Workflow
-
-Quantum State Tomography with this toolset is a two-phase process:
-1. **Data Acquisition (`acquire.py`)**: Run quantum circuits on a simulator or the real SpinQ hardware to gather measurement statistics for a complete set of Pauli observables.
-2. **State Reconstruction (`reconstruct.py`)**: Use the acquired measurement data to mathematically reconstruct the density matrix of the quantum state.
-
-Currently, data acquisition and reconstruction are configured for the GHZ (Greenberger-Horne-Zeilinger) state of 2 and 3 qubits. Future versions of this toolset will support other well-known quantum states.
-
 ---
 
-## Phase 1: Data Acquisition
+## Data Acquisition
 
 The first time you run `acquire.py`, it may take longer (the SpinQ SDK might be downloading required assets).
 
@@ -154,72 +170,18 @@ optional arguments:
                         Measure a single observable (e.g., XX, XYZ)
 ```
 
----
-
-## Phase 2: State Reconstruction
-
-After acquiring the JSON data, use `reconstruct.py` to reconstruct the density matrix of the state.
-
-### Basic Usage
-
-You can reconstruct the state using either Maximum Likelihood Estimation (MLE) or Linear Inversion (linear). By default, MLE is used. Since the JSON output of `acquire.py` contains all the execution metadata, `reconstruct.py` automatically reads the number of qubits and the endianness from the file, meaning you do not need to specify them as parameters:
-
-```bash
-# Reconstruct using the default MLE method
-python reconstruct.py --file qpu_results_3q.json
-
-# Reconstruct using the Linear Inversion method
-python reconstruct.py --file qpu_results_3q.json --method linear
-```
-
-### Marginal Operator Estimation and Averaging
-
-To perform a complete reconstruction using linear inversion or MLE over the Pauli basis, `reconstruct.py` needs to estimate the expectation value of all $4^N$ possible operators (including those containing the identity operator `I`, such as `XI` or `IZZ`).
-
-Since `acquire.py` only performs measurements on complete observables (without `I`), the marginal expectation values are extracted from these complete measurements by ignoring the qubits where the identity acts. For instance, the expectation of the marginal `ZI` for 2 qubits can be extracted from measurements of the complete observables `ZX`, `ZY`, or `ZZ`. To maximize statistical precision and reduce estimator variance, `reconstruct.py` finds all complete measurements compatible with a given marginal and computes the arithmetic mean of their individual expectation values.
-
-### Plotting
-
-To visualize the reconstructed density matrix as a 3D "Cityscape" bar chart (showing real and imaginary parts), append the `--plot` flag:
-```bash
-python reconstruct.py --file qpu_results_3q.json --plot
-```
-
-### Help (reconstruct.py)
-
-For a complete list of options:
-
-```bash
-$ python reconstruct.py --help
-usage: reconstruct.py [-h] -f FILE [-m {linear,mle}] [-p]
-
-State Reconstruction for SpinQ Tomography
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -f FILE, --file FILE  Input JSON file containing measurement counts
-  -m {linear,mle}, --method {linear,mle}
-                        Reconstruction method (linear or mle)
-  -p, --plot            Plot the density matrix cityscape
-```
-
----
 
 ## Project Structure
 
 The codebase is structured as follows:
 
-*   **`acquire.py`**: Entry-point script for the data acquisition phase. It configures the execution options (simulator, real QPU, or circuit drawing), the number of shots (`--shots`), and the endianness, printing the structured JSON output with metadata.
-*   **`reconstruct.py`**: Entry-point script for quantum state reconstruction. It loads the data generated by `acquire.py` and delegates the reconstruction to the selected algorithm using the *Strategy* pattern.
+*   **`acquire.py`**: Entry-point script for data acquisition. It configures the execution options (simulator, real QPU, or circuit drawing), the number of shots (`--shots`), and the endianness, printing the structured JSON output with metadata.
 *   **`lib/`**: Directory containing the project's internal modules:
     *   **`lib/__init__.py`**: Initializer that exposes `lib` as a Python package.
     *   **`lib/ghz.py`**: Defines the `Ghz` class, which specifies the GHZ state preparation circuit, measurement basis changes, and its ideal theoretical density matrix representation.
-    *   **`lib/reconstruction_strategy.py`**: Defines the abstract `ReconstructionStrategy` interface that all reconstruction methods must implement.
-    *   **`lib/linear_inversion.py`**: Implements the reconstruction strategy using linear inversion of Pauli operators.
-    *   **`lib/mle_least_squares.py`**: Implements the reconstruction strategy using constrained weighted least squares (MLE based on Cholesky).
     *   **`lib/utils.py`**: Contains all shared mathematical utilities, including Pauli basis generation, match filtering, and average expectation calculation for marginal operators.
 *   **`tests/`**: Directory for automated tests:
-    *   **`tests/test_tomography.py`**: Unit test suite to validate supporting mathematical operations and the integrity of the state reconstruction strategies.
+    *   **`tests/test_tomography.py`**: Unit test suite to validate supporting mathematical operations.
 
 ---
 

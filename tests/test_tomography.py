@@ -9,8 +9,6 @@ from lib.utils import (
     generate_all_pauli_strings,
     marginal_expectation_value,
 )
-from lib.linear_inversion import LinearInversionStrategy
-from lib.mle_least_squares import MleLeastSquaresStrategy
 
 class TestTomographyUtils(unittest.TestCase):
     def test_matches(self):
@@ -57,51 +55,6 @@ class TestTomographyUtils(unittest.TestCase):
         val_ix_little = marginal_expectation_value(counts_little, "IX", "XX")
         self.assertAlmostEqual(val_ix_little, 1.0)
 
-class TestReconstructionStrategies(unittest.TestCase):
-    def test_reconstruction_end_to_end_big_endian(self):
-        measurements = {
-            "XX": {"00": 512, "11": 512},
-            "XY": {"00": 256, "01": 256, "10": 256, "11": 256},
-            "XZ": {"00": 256, "01": 256, "10": 256, "11": 256},
-            "YX": {"00": 256, "01": 256, "10": 256, "11": 256},
-            "YY": {"01": 512, "10": 512},
-            "YZ": {"00": 256, "01": 256, "10": 256, "11": 256},
-            "ZX": {"00": 256, "01": 256, "10": 256, "11": 256},
-            "ZY": {"00": 256, "01": 256, "10": 256, "11": 256},
-            "ZZ": {"00": 512, "11": 512},
-        }
-        
-        for strategy in [LinearInversionStrategy(), MleLeastSquaresStrategy()]:
-            rho = strategy.reconstruct(measurements, 2, "big")
-            expected_rho = np.array([
-                [0.5, 0, 0, 0.5],
-                [0,   0, 0, 0],
-                [0,   0, 0, 0],
-                [0.5, 0, 0, 0.5]
-            ])
-            np.testing.assert_allclose(rho, expected_rho, atol=0.05)
-
-    def test_reconstruction_end_to_end_little_endian(self):
-        # Mock counts for |01> (qubit 0 is 0, qubit 1 is 1) in little-endian.
-        measurements = {
-            "XX": {"00": 256, "01": 256, "10": 256, "11": 256},
-            "XY": {"00": 256, "01": 256, "10": 256, "11": 256},
-            "XZ": {"10": 512, "11": 512}, # Z on qubit 1 (bit 0 is always 1).
-            "YX": {"00": 256, "01": 256, "10": 256, "11": 256},
-            "YY": {"00": 256, "01": 256, "10": 256, "11": 256},
-            "YZ": {"10": 512, "11": 512}, # Z on qubit 1 (bit 0 is always 1).
-            "ZX": {"00": 512, "10": 512}, # Z on qubit 0 (bit 1 is always 0).
-            "ZY": {"00": 512, "10": 512}, # Z on qubit 0 (bit 1 is always 0).
-            "ZZ": {"10": 1024},
-        }
-        
-        # In the standard big-endian basis, the state |qubit1=1, qubit0=0> is at index 1 (|01>).
-        expected_rho = np.zeros((4, 4))
-        expected_rho[1, 1] = 1.0
-        
-        for strategy in [LinearInversionStrategy(), MleLeastSquaresStrategy()]:
-            rho = strategy.reconstruct(measurements, 2, "little")
-            np.testing.assert_allclose(rho, expected_rho, atol=0.05)
 
 if __name__ == '__main__':
     unittest.main()
