@@ -20,6 +20,8 @@ python acquire.py --mode sim --full 3 --shots 500
 
 Read on to learn how to install and use this tool.
 
+**IMPORTANT**: to connect to a real SpinQ QPU you need to provide your connection credentials. Read section "Acquire Data from the QPU" below. Do not put your access credentials in a file that is commited to the repository. 
+
 ---
 
 # Install
