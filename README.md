@@ -175,9 +175,10 @@ optional arguments:
 
 The codebase is structured as follows:
 
-*   **`acquire.py`**: Entry-point script for data acquisition. It configures the execution options (simulator, real QPU, or circuit drawing), the number of shots (`--shots`), and the endianness, printing the structured JSON output with metadata.
+*   **`acquire.py`**: CLI entry-point script for data acquisition. It handles argument parsing (simulator, real QPU, or circuit drawing, shots, endianness) and prints the structured JSON output with metadata.
 *   **`lib/`**: Directory containing the project's internal modules:
     *   **`lib/__init__.py`**: Initializer that exposes `lib` as a Python package.
+    *   **`lib/acquisition.py`**: Contains the core logic and programmatic API (`acquire_tomography_data`) for executing the quantum circuits and gathering measurement statistics.
     *   **`lib/ghz.py`**: Defines the `Ghz` class, which specifies the GHZ state preparation circuit, measurement basis changes, and its ideal theoretical density matrix representation.
     *   **`lib/utils.py`**: Contains all shared mathematical utilities, including Pauli basis generation, match filtering, and average expectation calculation for marginal operators.
 *   **`tests/`**: Directory for automated tests:
