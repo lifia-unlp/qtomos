@@ -1,15 +1,15 @@
-# qtomos Command-Line Interface (CLI) Guide
+# `acquire` Command-Line Interface (CLI) Guide
 
-The `qtomos` CLI is the primary way to interact with the data acquisition toolset from your terminal.
+The `acquire` CLI is the primary way to interact with the data acquisition toolset from your terminal.
 
-> The first time you run `qtomos`, it may take longer as the SpinQ SDK might be downloading required assets.
+> The first time you run `acquire`, it may take longer as the SpinQ SDK might be downloading required assets.
 
 ## Basic Usage
 
 The CLI requires you to specify the `--circuit` and the `--mode` explicitly for every run.
 
 ```bash
-qtomos --circuit ghz --mode sim --file output.json
+acquire --circuit ghz --mode sim --file output.json
 ```
 
 ## Execution Modes
@@ -27,10 +27,10 @@ Available predefined states include: `ghz`, `phi_plus`, `w`, and `random`.
 
 ```bash
 # Acquire a full tomography for a W state
-qtomos --circuit w --mode sim --file output.json
+acquire --circuit w --mode sim --file output.json
 
 # Acquire a full tomography for a random state
-qtomos --circuit random --mode sim --file output.json
+acquire --circuit random --mode sim --file output.json
 ```
 
 ## Measuring Specific Observables
@@ -39,7 +39,7 @@ By default, the CLI performs a **full tomographic acquisition**, meaning it auto
 
 To measure only a single specific observable (e.g., `XX`), use the `--observable` flag:
 ```bash
-qtomos --circuit ghz --mode sim --observable XX --file output.json
+acquire --circuit ghz --mode sim --observable XX --file output.json
 ```
 
 ## Connecting to the QPU
@@ -56,7 +56,7 @@ PASSWORD=your_password
 
 Then, execute the command:
 ```bash
-qtomos --circuit ghz --mode qpu --file output.json
+acquire --circuit ghz --mode qpu --file output.json
 ```
 **IMPORTANT**: Do not commit your `.env` file containing real credentials to version control.
 
@@ -65,13 +65,13 @@ qtomos --circuit ghz --mode qpu --file output.json
 ### Shots
 By default, execution uses `1024` shots. You can customize the number of shots using the `--shots` flag:
 ```bash
-qtomos --circuit ghz --mode sim --file output.json --shots 500
+acquire --circuit ghz --mode sim --file output.json --shots 500
 ```
 
 ### Endianness
 By default, the measurement bitstrings use Big-Endian format (qubit 0 is the leftmost bit). If you prefer Little-Endian (qubit 0 is the rightmost bit, typical in IBM Qiskit), use the `--endian little` flag:
 ```bash
-qtomos --circuit ghz --mode sim --observable XX --endian little --file output.json
+acquire --circuit ghz --mode sim --observable XX --endian little --file output.json
 ```
 
 ## Output Format
@@ -113,5 +113,5 @@ The `--file` flag defines where the output JSON is saved. It has the following s
 
 For a complete list of options, use the `--help` flag:
 ```bash
-$ qtomos --help
+$ acquire --help
 ```

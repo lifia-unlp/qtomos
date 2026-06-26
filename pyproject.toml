@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qtomos"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
   { name="Tomas", email="tomas@example.com" },
 ]
@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.scripts]
-qtomos = "qtomos.cli:main"
+acquire = "qtomos.acquire_cli:main"
 
 [tool.setuptools.packages.find]
 include = ["qtomos*"]

@@ -29,6 +29,6 @@ pip install qtomos
 
 Depending on your use case, refer to the following dedicated guides:
 
-- 📖 **[CLI Usage Guide](README-CLI.md)**: Learn how to perform tomography directly from your terminal using the `qtomos` command.
+- 📖 **[CLI Usage Guide](README-CLI.md)**: Learn how to perform tomography directly from your terminal using the `acquire` command.
 - 📓 **[Jupyter Notebook Guide](README-NOTEBOOK.md)**: Learn how to import and use the programmatic APIs within Python scripts and Jupyter Notebooks.
 - 🛠️ **[Developer Guide](README-DEV.md)**: Learn how to set up the repository for local development, run tests, and understand the project structure.

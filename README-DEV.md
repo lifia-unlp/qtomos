@@ -42,7 +42,7 @@ On Arm-based Macs, you'll encounter architecture issues with the default SpinQit
 *   **`pyproject.toml`**: The package configuration file defining metadata, dependencies, and the CLI entry point.
 *   **`qtomos/`**: The core Python package:
     *   **`__init__.py`**: Exposes the programmatic APIs.
-    *   **`cli.py`**: The entry-point script utilized by the `qtomos` terminal command.
+    *   **`acquire_cli.py`**: The entry-point script utilized by the `acquire` terminal command.
     *   **`acquisition.py`**: Contains the core logic (`measure_observable` and `measure_all_observables`).
     *   **`circuits_catalog.py`**: A catalog of pre-defined quantum circuits (`ghz`, `phi_plus`, `w`, `random`). Add new circuits here!
     *   **`utils.py`**: Mathematical utilities, Pauli basis generators, and match filtering.
@@ -62,7 +62,7 @@ To add a new state preparation sequence to the CLI:
 1. Open `qtomos/circuits_catalog.py`.
 2. Define a new function starting with `create_` (e.g., `create_bell(qubits: int) -> Circuit`).
 3. Return the `spinqit.Circuit` instance.
-4. The CLI (`qtomos/cli.py`) will automatically discover your function via introspection and expose it as `--circuit bell`.
+4. The CLI (`qtomos/acquire_cli.py`) will automatically discover your function via introspection and expose it as `--circuit bell`.
 
 ## Publishing to PyPI
 
