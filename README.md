@@ -14,8 +14,8 @@ Currently, data acquisition is configured for the GHZ (Greenberger-Horne-Zeiling
 This is now you basically use this tool:
 
 ```bash
-# acquire data for the complete set of tensor products of the non-identity Pauli matrices (X, Y, Z), on the noiseless simulator, on a three qubit GHZ, using 500 shots for each measurement, sending the results to the standard output
-python acquire.py --mode sim --full 3 --shots 500
+# acquire data for the complete set of tensor products of the non-identity Pauli matrices (X, Y, Z), on the noiseless simulator, on a three qubit GHZ, using 500 shots for each measurement, saving the results to output.json
+python acquire.py --mode sim --shots 500 --file output.json
 ```
 
 Read on to learn how to install and use this tool.
@@ -52,12 +52,12 @@ The first time you run `acquire.py`, it may take longer (the SpinQ SDK might be 
 
 To run a simulation for a specific observable (e.g., `XX`):
 ```bash
-python acquire.py --mode sim --single XX
+python acquire.py --mode sim --observable XX --file output.json
 ```
 
 By default, the measurement bitstrings use Big-Endian format (qubit 0 is the leftmost bit). If you prefer Little-Endian (qubit 0 is the rightmost bit, similar to Qiskit), use the `--endian little` flag:
 ```bash
-python acquire.py --mode sim --single XX --endian little
+python acquire.py --mode sim --observable XX --endian little --file output.json
 ```
 
 ### Acquire Data from the QPU
@@ -79,26 +79,26 @@ PASSWORD=your_password
 
 Then, to acquire data for the same specific observable on the real hardware:
 ```bash
-python acquire.py --mode qpu --single XX
+python acquire.py --mode qpu --observable XX --file output.json
 ```
 
 ### Drawing Circuits
 
 To generate a visual representation of the quantum circuit instead of simulating it or running it on the QPU, use the `draw` mode. This will save a `.png` image of the circuit in your current directory (e.g., `XX_of_a_Ghz.png`):
 ```bash
-python acquire.py --mode draw --single XX
+python acquire.py --mode draw --observable XX --file output.json
 ```
 
 ### Full Tomographic Acquisition
 
-To perform a full tomographic acquisition (all observables), specify the number of qubits using the `--full` argument (defaults to 3 if omitted):
+To perform a full tomographic acquisition (all observables), omit the `--observable` argument. This defaults to 3 qubits.
 
 ```bash
-# 2-qubit full tomographic acquisition on simulator
-python acquire.py --mode sim --full 2
+# 3-qubit full tomographic acquisition on simulator
+python acquire.py --mode sim --file output.json
 
 # 3-qubit full tomographic acquisition on QPU
-python acquire.py --mode qpu --full 3
+python acquire.py --mode qpu --file output.json
 ```
 
 ### Parametrizing Shots
@@ -106,40 +106,38 @@ python acquire.py --mode qpu --full 3
 By default, execution uses `1024` shots. You can customize the number of shots using the `--shots` flag:
 
 ```bash
-python acquire.py --mode sim --full 2 --shots 500
+python acquire.py --mode sim --file output.json --shots 500
 ```
 
 ### Saving Output and Format
-
-Since the script outputs standard JSON, you can easily save the results to a file by redirecting standard output:
-
-```bash
-# Save 3-qubit full tomographic acquisition on QPU to a file
-python acquire.py --mode qpu --full 3 > qpu_results_3q.json
-```
 
 The output JSON file has the following structure:
 
 ```json
 {
   "metadata": {
-    "state": "Ghz",
+    "circuit_name": "ghz",
     "qubits": 2,
-    "endian": "big",
+    "mode": "sim",
     "shots": 500,
-    "start-timestamp": "2026-06-20T22:07:15.649607-03:00",
-    "end-timestamp": "2026-06-20T22:07:15.650332-03:00"
+    "endian": "big",
+    "timestamps": {
+      "start": "2026-06-25T20:51:33.528965-03:00",
+      "end": "2026-06-25T20:51:33.530752-03:00"
+    }
   },
   "measurements": {
     "XX": {
-      "00": 250,
-      "11": 250
-    },
-    "XY": {
-      "00": 125,
-      "01": 125,
-      "10": 125,
-      "11": 125
+      "timestamps": {
+        "start": "2026-06-25T20:51:33.529028-03:00",
+        "end": "2026-06-25T20:51:33.530740-03:00"
+      },
+      "counts": {
+        "00": 250,
+        "11": 250
+      },
+      "qasm": "...",
+      "native": "..."
     },
     ...
   }
@@ -153,7 +151,7 @@ For a complete list of options, use the `--help` flag:
 ```bash
 $ python acquire.py --help
 usage: acquire.py [-h] [-m {sim,qpu,draw}] [-e {big,little}] [--shots SHOTS]
-                  [-f {2,3} | -s SINGLE]
+                  -f FILE [-o OBSERVABLE]
 
 Acquire SpinQ Tomographic Data
 
@@ -166,9 +164,8 @@ optional arguments:
                         Endianness for output bitstrings: big (q[0] is
                         leftmost) or little (q[0] is rightmost)
   --shots SHOTS         Number of shots for execution
-  -f {2,3}, --full {2,3}
-                        Number of qubits for full tomography (2 or 3)
-  -s SINGLE, --single SINGLE
+  -f FILE, --file FILE  Output JSON file path
+  -o OBSERVABLE, --observable OBSERVABLE
                         Measure a single observable (e.g., XX, XYZ)
 ```
 

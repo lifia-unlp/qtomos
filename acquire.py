@@ -11,25 +11,23 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--endian", choices=["big", "little"], default="big", help="Endianness for output bitstrings: big (q[0] is leftmost) or little (q[0] is rightmost)")
     parser.add_argument("--shots", type=int, default=1024, help="Number of shots for execution")
     
-    parser.add_argument("-o", "--output", type=str, required=True, help="Output JSON file path")
-    
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument("-f","--full", type=int, choices=[2, 3], help="Number of qubits for full tomography (2 or 3)")
-    group.add_argument("-s","--single", type=str, help="Measure a single observable (e.g., XX, XYZ)")
+    parser.add_argument("-f", "--file", type=str, required=True, help="Output JSON file path")
+    parser.add_argument("-o", "--observable", type=str, help="Measure a single observable (e.g., XX, XYZ)")
     
     args = parser.parse_args()
 
     # Determine number of qubits and instantiate the circuit to be passed
-    num_qubits = len(args.single) if args.single else (args.full or 3)
+    # Defaults to 3 qubits (full tomography) if no observable is specified.
+    num_qubits = len(args.observable) if args.observable else 3
     c = create_ghz(num_qubits)
 
     output = acquire_tomography_data(
         circuit=c,
         mode=args.mode,
-        single=args.single,
+        single=args.observable,
         endian=args.endian,
         shots=args.shots
     )
 
-    with open(args.output, "w") as f:
+    with open(args.file, "w") as f:
         json.dump(output, f, indent=2)
