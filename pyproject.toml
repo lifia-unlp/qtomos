@@ -4,13 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qtomos"
-version = "0.1.1"
+version = "0.1.2"
 authors = [
-  { name="Tomas", email="tomas@example.com" },
+  { name="Marcos Lammers", email="marcos.lammers@lifia.info.unlp.edu.ar" },
+  { name="Alejandro Fernandez", email="alejandro.fernandez@lifia.info.unlp.edu.ar" },
 ]
 description = "A SpinQ quantum state tomography data acquisition toolset"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = "==3.8.*"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
