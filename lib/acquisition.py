@@ -63,15 +63,10 @@ def simulate(c: Circuit, shots: int = 1024):
     return result.counts
 
 def run(c: Circuit, shots: int = 1024):
-    #IP = os.environ.get("IP")
-    #PORT = int(os.environ.get("PORT"))
-    #USERNAME = os.environ.get("USERNAME")        
-    #PASSWORD = os.environ.get("PASSWORD")
-    
-    IP = "192.168.172.246"
-    PORT = 50177
-    USERNAME = "holik"        
-    PASSWORD = "holikspinq"
+    IP = os.environ.get("IP")
+    PORT = int(os.environ.get("PORT"))
+    USERNAME = os.environ.get("USERNAME")        
+    PASSWORD = os.environ.get("PASSWORD")
         
     comp = get_compiler("native")
     optimization_level = 0
@@ -139,6 +134,10 @@ def measure_observable(circuit: Circuit, observable: str, mode: str, endian="big
     
     return {
         observable: {
+            "circuit_name": circuit_name,
+            "mode": mode,
+            "shots": shots,
+            "endian": endian,
             "timestamps": {
                 "start": start_time,
                 "end": end_time
@@ -149,30 +148,26 @@ def measure_observable(circuit: Circuit, observable: str, mode: str, endian="big
         }
     }
 
-def full(circuit: Circuit, mode: str, endian="big", shots: int = 1024):
+def measure_all_observables(circuit: Circuit, mode: str, endian="big", shots: int = 1024):
+    start_time = datetime.datetime.now().astimezone().isoformat()
     results = {}
     qubits = circuit.qubits_num
     observables = TWO_QUBIT_OBSERVABLES if qubits == 2 else THREE_QUBIT_OBSERVABLES
-    for observable in observables:
-        results.update(measure_observable(circuit, observable, mode, endian, shots))
-    return results
-
-def acquire_tomography_data(circuit: Circuit, mode: str, single=None, endian="big", shots=1024):
-    """
-    Acquires tomography data for either a single observable or a full set.
-    Returns a dictionary containing the measurements and execution metadata.
-    """
-    start_time = datetime.datetime.now().astimezone().isoformat()
     
-    if single:
-        measurements = measure_observable(circuit, single, mode, endian, shots)
-        qubits = len(single)
-    else:
-        measurements = full(circuit, mode, endian, shots)
-        qubits = circuit.qubits_num
+    for observable in observables:
+        obs_data = measure_observable(circuit, observable, mode, endian, shots)
+        res = obs_data[observable]
         
-    end_time = datetime.datetime.now().astimezone().isoformat()
+        # Remove common metadata properties to avoid duplication
+        res.pop("circuit_name", None)
+        res.pop("mode", None)
+        res.pop("shots", None)
+        res.pop("endian", None)
+        
+        results[observable] = res
 
+    end_time = datetime.datetime.now().astimezone().isoformat()
+    
     return {
         "metadata": {
             "circuit_name": getattr(circuit, 'name', "circuit"),
@@ -185,5 +180,7 @@ def acquire_tomography_data(circuit: Circuit, mode: str, single=None, endian="bi
                 "end": end_time
             }
         },
-        "measurements": measurements
+        "measurements": results
     }
+
+

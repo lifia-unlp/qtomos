@@ -2,12 +2,26 @@
 
 import json
 import argparse
-from lib.acquisition import acquire_tomography_data
-from lib.circuits_catalog import create_ghz
+import inspect
+from dotenv import load_dotenv
+from lib import circuits_catalog
+from lib.acquisition import measure_observable, measure_all_observables
+
+load_dotenv()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Acquire SpinQ Tomographic Data")
+    
+    # Dynamically discover circuits in the catalog
+    circuit_funcs = {
+        name.replace("create_", ""): func 
+        for name, func in inspect.getmembers(circuits_catalog, inspect.isfunction) 
+        if name.startswith("create_")
+    }
+
     parser.add_argument("-m", "--mode", choices=["sim", "qpu", "draw"], default="sim", help="Execution mode: sim (simulator), qpu (real computer), or draw (print circuit)")
+    parser.add_argument("-c", "--circuit", choices=list(circuit_funcs.keys()), default="ghz", help="Circuit to prepare")
+    parser.add_argument("-q", "--qubits", type=int, help="Number of qubits (inferred from observable if omitted, defaults to 3)")
     parser.add_argument("-e", "--endian", choices=["big", "little"], default="big", help="Endianness for output bitstrings: big (q[0] is leftmost) or little (q[0] is rightmost)")
     parser.add_argument("--shots", type=int, default=1024, help="Number of shots for execution")
     
@@ -16,18 +30,35 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
 
-    # Determine number of qubits and instantiate the circuit to be passed
-    # Defaults to 3 qubits (full tomography) if no observable is specified.
-    num_qubits = len(args.observable) if args.observable else 3
-    c = create_ghz(num_qubits)
+    # Determine number of qubits
+    if args.qubits is not None:
+        num_qubits = args.qubits
+    else:
+        num_qubits = len(args.observable) if args.observable else 3
+        
+    # Retrieve the dynamically selected circuit creation function
+    create_func = circuit_funcs[args.circuit]
+    c = create_func(num_qubits)
+    
+    # Check for inconsistencies
+    if args.observable and len(args.observable) != c.qubits_num:
+        parser.error(f"Length of observable '{args.observable}' ({len(args.observable)}) does not match the actual circuit size ({c.qubits_num} qubits).")
 
-    output = acquire_tomography_data(
-        circuit=c,
-        mode=args.mode,
-        single=args.observable,
-        endian=args.endian,
-        shots=args.shots
-    )
+    if args.observable:
+        output = measure_observable(
+            circuit=c,
+            observable=args.observable,
+            mode=args.mode,
+            endian=args.endian,
+            shots=args.shots
+        )
+    else:
+        output = measure_all_observables(
+            circuit=c,
+            mode=args.mode,
+            endian=args.endian,
+            shots=args.shots
+        )
 
     with open(args.file, "w") as f:
         json.dump(output, f, indent=2)

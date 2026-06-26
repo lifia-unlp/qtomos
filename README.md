@@ -9,7 +9,7 @@ Quantum State Tomography is generally a two-phase process:
 > [!NOTE]
 > This toolset is solely focused on **Data Acquisition (`acquire.py`)**. State reconstruction is not handled by this repository.
 
-Currently, data acquisition is configured for the GHZ (Greenberger-Horne-Zeilinger) state of 2 and 3 qubits. Future versions of this toolset will support other well-known quantum states.
+Currently, data acquisition supports multiple predefined quantum states (GHZ, Phi+, W, and random circuits) defined in the `circuits_catalog`. You can dynamically select which circuit to prepare during acquisition.
 
 This is now you basically use this tool:
 
@@ -50,14 +50,26 @@ The first time you run `acquire.py`, it may take longer (the SpinQ SDK might be 
 
 ### Simulate Acquisition
 
-To run a simulation for a specific observable (e.g., `XX`):
+To run a simulation for a specific observable (e.g., `XX`) on the default GHZ state:
 ```bash
 python acquire.py --mode sim --observable XX --file output.json
 ```
 
+### Selecting a Circuit
+
+You can select the quantum state to prepare using the `-c` or `--circuit` argument. The CLI dynamically exposes all circuits defined in `lib/circuits_catalog.py`. Current available states include `ghz` (default), `phi_plus`, `w`, and `random`.
+
+```bash
+# Acquire the ZZZ observable for a W state
+python acquire.py --circuit w --mode sim --observable ZZZ --file output.json
+
+# Acquire the full set for a random circuit
+python acquire.py -c random -m sim -f output.json
+```
+
 By default, the measurement bitstrings use Big-Endian format (qubit 0 is the leftmost bit). If you prefer Little-Endian (qubit 0 is the rightmost bit, similar to Qiskit), use the `--endian little` flag:
 ```bash
-python acquire.py --mode sim --observable XX --endian little --file output.json
+python acquire.py --circuit ghz --mode sim --observable XX --endian little --file output.json
 ```
 
 ### Acquire Data from the QPU
@@ -150,8 +162,9 @@ For a complete list of options, use the `--help` flag:
 
 ```bash
 $ python acquire.py --help
-usage: acquire.py [-h] [-m {sim,qpu,draw}] [-e {big,little}] [--shots SHOTS]
-                  -f FILE [-o OBSERVABLE]
+usage: acquire.py [-h] [-m {sim,qpu,draw}] [-c {ghz,phi_plus,random,w}]
+                  [-q QUBITS] [-e {big,little}] [--shots SHOTS] -f FILE
+                  [-o OBSERVABLE]
 
 Acquire SpinQ Tomographic Data
 
@@ -160,6 +173,11 @@ optional arguments:
   -m {sim,qpu,draw}, --mode {sim,qpu,draw}
                         Execution mode: sim (simulator), qpu (real computer),
                         or draw (print circuit)
+  -c {ghz,phi_plus,random,w}, --circuit {ghz,phi_plus,random,w}
+                        Circuit to prepare
+  -q QUBITS, --qubits QUBITS
+                        Number of qubits (inferred from observable if omitted,
+                        defaults to 3)
   -e {big,little}, --endian {big,little}
                         Endianness for output bitstrings: big (q[0] is
                         leftmost) or little (q[0] is rightmost)
@@ -177,8 +195,8 @@ The codebase is structured as follows:
 *   **`acquire.py`**: CLI entry-point script for data acquisition. It handles argument parsing (simulator, real QPU, or circuit drawing, shots, endianness) and prints the structured JSON output with metadata.
 *   **`lib/`**: Directory containing the project's internal modules:
     *   **`lib/__init__.py`**: Initializer that exposes `lib` as a Python package.
-    *   **`lib/acquisition.py`**: Contains the core logic and programmatic API (`acquire_tomography_data`) for executing the quantum circuits and gathering measurement statistics.
-    *   **`lib/circuits_catalog.py`**: A catalog of pre-defined quantum circuits. Currently defines the `Ghz` class, which specifies the GHZ state preparation circuit.
+    *   **`lib/acquisition.py`**: Contains the core logic and programmatic API (`measure_observable` and `measure_all_observables`) for executing the quantum circuits and gathering measurement statistics.
+    *   **`lib/circuits_catalog.py`**: A catalog of pre-defined quantum circuits. The CLI dynamically discovers states defined here (e.g., `ghz`, `phi_plus`, `w`, `random`).
     *   **`lib/utils.py`**: Contains all shared mathematical utilities, including Pauli basis generation, match filtering, and average expectation calculation for marginal operators.
 *   **`tests/`**: Directory for automated tests:
     *   **`tests/test_tomography.py`**: Unit test suite to validate supporting mathematical operations.

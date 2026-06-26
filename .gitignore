@@ -71,3 +71,7 @@ coverage.xml
 # Jupyter Notebook
 # ==========================================
 .ipynb_checkpoints/
+
+# Output files
+/*.json
+/*.png
