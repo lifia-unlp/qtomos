@@ -68,12 +68,6 @@ By default, execution uses `1024` shots. You can customize the number of shots u
 acquire --circuit ghz --mode sim --file output.json --shots 500
 ```
 
-### Endianness
-By default, the measurement bitstrings use Big-Endian format (qubit 0 is the leftmost bit). If you prefer Little-Endian (qubit 0 is the rightmost bit, typical in IBM Qiskit), use the `--endian little` flag:
-```bash
-acquire --circuit ghz --mode sim --observable XX --endian little --file output.json
-```
-
 ## Output Format
 
 The `--file` flag defines where the output JSON is saved. It has the following structure:

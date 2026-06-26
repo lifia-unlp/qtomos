@@ -25,7 +25,6 @@ circuit = circuits_catalog.create_ghz(3)
 results = measure_all_observables(
     circuit=circuit,
     mode="sim",         # Use "sim", "qpu", or "draw"
-    endian="big",       # Big-endian configuration
     shots=1024
 )
 
@@ -38,7 +37,6 @@ print(json.dumps(measurements["XXZ"], indent=2))
 ### Parameters for `measure_all_observables`
 - `circuit` (*spinqit.Circuit*): The quantum circuit to execute. The number of allocated qubits will determine the complete Pauli basis (2 or 3 qubits).
 - `mode` (*str*): The execution backend. Can be `"sim"` (local noiseless simulator), `"qpu"` (SpinQ real hardware), or `"draw"` (outputs a PNG of the circuit without running).
-- `endian` (*str, optional*): Defines the order of qubits in the measurement bitstrings. `"big"` (default, q[0] is leftmost) or `"little"` (q[0] is rightmost, similar to Qiskit).
 - `shots` (*int, optional*): Number of execution shots. Defaults to `1024`.
 
 ## Measuring a Single Observable
@@ -66,7 +64,6 @@ print(result["XY"]["counts"])
 - `circuit` (*spinqit.Circuit*): The quantum circuit to execute.
 - `observable` (*str*): The specific Pauli observable to measure (e.g., `"XX"`, `"XYZ"`).
 - `mode` (*str*): The execution backend (`"sim"`, `"qpu"`, or `"draw"`).
-- `endian` (*str, optional*): Bitstring ordering (`"big"` or `"little"`). Defaults to `"big"`.
 - `shots` (*int, optional*): Number of execution shots. Defaults to `1024`.
 
 ## Defining Custom Circuits Inline

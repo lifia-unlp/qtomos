@@ -19,7 +19,7 @@ def construct_pauli_string(p_str):
         result = np.kron(result, get_pauli(p))
     return result
 
-def expectation_value(counts, endian="big"):
+def expectation_value(counts):
     """
     Calculate the expectation value from counts.
     If the bitstring has an even number of 1s, it corresponds to eigenvalue +1.

@@ -92,13 +92,13 @@ def draw(c: Circuit):
     sq_draw(ir, filename=filename)
     print(f"Circuit drawing saved to {filename}")
 
-def normalize_counts(counts, endian="big"):
+def normalize_counts(counts):
     return {
-        str(bitstring) if endian == "big" else str(bitstring)[::-1]: int(count)
+        str(bitstring): int(count)
         for bitstring, count in counts.items()
     }
 
-def measure_observable(circuit: Circuit, observable: str, mode: str, endian="big", shots: int = 1024):
+def measure_observable(circuit: Circuit, observable: str, mode: str, shots: int = 1024):
     circuit_name = getattr(circuit, 'name', 'circuit')
     print(f"Starting measurement task for circuit '{circuit_name}', observable '{observable}'...")
     
@@ -137,25 +137,25 @@ def measure_observable(circuit: Circuit, observable: str, mode: str, endian="big
             "circuit_name": circuit_name,
             "mode": mode,
             "shots": shots,
-            "endian": endian,
+            "endian": "big",
             "timestamps": {
                 "start": start_time,
                 "end": end_time
             },
-            "counts": normalize_counts(counts, endian),
+            "counts": normalize_counts(counts),
             "qasm": qasm_str,
             "native": native_qasm_str
         }
     }
 
-def measure_all_observables(circuit: Circuit, mode: str, endian="big", shots: int = 1024):
+def measure_all_observables(circuit: Circuit, mode: str, shots: int = 1024):
     start_time = datetime.datetime.now().astimezone().isoformat()
     results = {}
     qubits = circuit.qubits_num
     observables = TWO_QUBIT_OBSERVABLES if qubits == 2 else THREE_QUBIT_OBSERVABLES
     
     for observable in observables:
-        obs_data = measure_observable(circuit, observable, mode, endian, shots)
+        obs_data = measure_observable(circuit, observable, mode, shots)
         res = obs_data[observable]
         
         # Remove common metadata properties to avoid duplication
@@ -174,7 +174,7 @@ def measure_all_observables(circuit: Circuit, mode: str, endian="big", shots: in
             "qubits": qubits,
             "mode": mode,
             "shots": shots,
-            "endian": endian,
+            "endian": "big",
             "timestamps": {
                 "start": start_time,
                 "end": end_time
