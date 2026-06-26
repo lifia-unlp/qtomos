@@ -1,15 +1,13 @@
-#acquire.py
-
 import json
 import argparse
 import inspect
 from dotenv import load_dotenv
-from lib import circuits_catalog
-from lib.acquisition import measure_observable, measure_all_observables
+from . import circuits_catalog
+from .acquisition import measure_observable, measure_all_observables
 
-load_dotenv()
+def main():
+    load_dotenv()
 
-if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Acquire SpinQ Tomographic Data")
     
     # Dynamically discover circuits in the catalog
@@ -19,8 +17,8 @@ if __name__ == "__main__":
         if name.startswith("create_")
     }
 
-    parser.add_argument("-m", "--mode", choices=["sim", "qpu", "draw"], default="sim", help="Execution mode: sim (simulator), qpu (real computer), or draw (print circuit)")
-    parser.add_argument("-c", "--circuit", choices=list(circuit_funcs.keys()), default="ghz", help="Circuit to prepare")
+    parser.add_argument("-m", "--mode", choices=["sim", "qpu", "draw"], required=True, help="Execution mode: sim (simulator), qpu (real computer), or draw (print circuit)")
+    parser.add_argument("-c", "--circuit", choices=list(circuit_funcs.keys()), required=True, help="Circuit to prepare")
     parser.add_argument("-q", "--qubits", type=int, help="Number of qubits (inferred from observable if omitted, defaults to 3)")
     parser.add_argument("-e", "--endian", choices=["big", "little"], default="big", help="Endianness for output bitstrings: big (q[0] is leftmost) or little (q[0] is rightmost)")
     parser.add_argument("--shots", type=int, default=1024, help="Number of shots for execution")
@@ -62,3 +60,6 @@ if __name__ == "__main__":
 
     with open(args.file, "w") as f:
         json.dump(output, f, indent=2)
+
+if __name__ == "__main__":
+    main()

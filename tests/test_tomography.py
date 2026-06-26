@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import unittest
 import numpy as np
-from lib.utils import (
+from qtomos.utils import (
     matches,
     generate_all_pauli_strings,
     marginal_expectation_value,

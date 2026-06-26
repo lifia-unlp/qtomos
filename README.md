@@ -7,7 +7,7 @@ Quantum State Tomography is generally a two-phase process:
 2. **State Reconstruction**: Use the acquired measurement data to mathematically reconstruct the density matrix of the quantum state.
 
 > [!NOTE]
-> This toolset is solely focused on **Data Acquisition (`acquire.py`)**. State reconstruction is not handled by this repository.
+> This toolset is solely focused on **Data Acquisition (`qtomos`)**. State reconstruction is not handled by this repository.
 
 Currently, data acquisition supports multiple predefined quantum states (GHZ, Phi+, W, and random circuits) defined in the `circuits_catalog`. You can dynamically select which circuit to prepare during acquisition.
 
@@ -15,7 +15,7 @@ This is now you basically use this tool:
 
 ```bash
 # acquire data for the complete set of tensor products of the non-identity Pauli matrices (X, Y, Z), on the noiseless simulator, on a three qubit GHZ, using 500 shots for each measurement, saving the results to output.json
-python acquire.py --mode sim --shots 500 --file output.json
+qtomos --circuit ghz --mode sim --shots 500 --file output.json
 ```
 
 Read on to learn how to install and use this tool.
@@ -34,10 +34,10 @@ We suggest installing everything in a virtual environment.
 
 To set up your environment, run:
 
-```python
+```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -e .
 ```
 
 On Arm based Macs, you'll have issues with the default location of SPinQit libraries. Use the ```fix-spinqit-macos-arm.sh```script to fix it (changes will only affect that venv)
@@ -46,30 +46,30 @@ On Arm based Macs, you'll have issues with the default location of SPinQit libra
 
 ## Data Acquisition
 
-The first time you run `acquire.py`, it may take longer (the SpinQ SDK might be downloading required assets).
+The first time you run `qtomos`, it may take longer (the SpinQ SDK might be downloading required assets).
 
 ### Simulate Acquisition
 
-To run a simulation for a specific observable (e.g., `XX`) on the default GHZ state:
+To run a simulation for a specific observable (e.g., `XX`) on a GHZ state:
 ```bash
-python acquire.py --mode sim --observable XX --file output.json
+qtomos --circuit ghz --mode sim --observable XX --file output.json
 ```
 
 ### Selecting a Circuit
 
-You can select the quantum state to prepare using the `-c` or `--circuit` argument. The CLI dynamically exposes all circuits defined in `lib/circuits_catalog.py`. Current available states include `ghz` (default), `phi_plus`, `w`, and `random`.
+You can select the quantum state to prepare using the `-c` or `--circuit` argument. The CLI dynamically exposes all circuits defined in `qtomos/circuits_catalog.py`. Current available states include `ghz` (default), `phi_plus`, `w`, and `random`.
 
 ```bash
 # Acquire the ZZZ observable for a W state
-python acquire.py --circuit w --mode sim --observable ZZZ --file output.json
+qtomos --circuit w --mode sim --observable ZZZ --file output.json
 
 # Acquire the full set for a random circuit
-python acquire.py -c random -m sim -f output.json
+qtomos --circuit random --mode sim --file output.json
 ```
 
 By default, the measurement bitstrings use Big-Endian format (qubit 0 is the leftmost bit). If you prefer Little-Endian (qubit 0 is the rightmost bit, similar to Qiskit), use the `--endian little` flag:
 ```bash
-python acquire.py --circuit ghz --mode sim --observable XX --endian little --file output.json
+qtomos --circuit ghz --mode sim --observable XX --endian little --file output.json
 ```
 
 ### Acquire Data from the QPU
@@ -91,14 +91,14 @@ PASSWORD=your_password
 
 Then, to acquire data for the same specific observable on the real hardware:
 ```bash
-python acquire.py --mode qpu --observable XX --file output.json
+qtomos --circuit ghz --mode qpu --observable XX --file output.json
 ```
 
 ### Drawing Circuits
 
 To generate a visual representation of the quantum circuit instead of simulating it or running it on the QPU, use the `draw` mode. This will save a `.png` image of the circuit in your current directory (e.g., `XX_of_a_Ghz.png`):
 ```bash
-python acquire.py --mode draw --observable XX --file output.json
+qtomos --circuit ghz --mode draw --observable XX --file output.json
 ```
 
 ### Full Tomographic Acquisition
@@ -107,10 +107,10 @@ To perform a full tomographic acquisition (all observables), omit the `--observa
 
 ```bash
 # 3-qubit full tomographic acquisition on simulator
-python acquire.py --mode sim --file output.json
+qtomos --circuit ghz --mode sim --file output.json
 
 # 3-qubit full tomographic acquisition on QPU
-python acquire.py --mode qpu --file output.json
+qtomos --circuit ghz --mode qpu --file output.json
 ```
 
 ### Parametrizing Shots
@@ -118,7 +118,7 @@ python acquire.py --mode qpu --file output.json
 By default, execution uses `1024` shots. You can customize the number of shots using the `--shots` flag:
 
 ```bash
-python acquire.py --mode sim --file output.json --shots 500
+qtomos --circuit ghz --mode sim --file output.json --shots 500
 ```
 
 ### Saving Output and Format
@@ -156,13 +156,13 @@ The output JSON file has the following structure:
 }
 ```
 
-### Help (acquire.py)
+### Help (qtomos)
 
 For a complete list of options, use the `--help` flag:
 
 ```bash
-$ python acquire.py --help
-usage: acquire.py [-h] [-m {sim,qpu,draw}] [-c {ghz,phi_plus,random,w}]
+$ qtomos --help
+usage: qtomos [-h] [-m {sim,qpu,draw}] [-c {ghz,phi_plus,random,w}]
                   [-q QUBITS] [-e {big,little}] [--shots SHOTS] -f FILE
                   [-o OBSERVABLE]
 
@@ -192,12 +192,13 @@ optional arguments:
 
 The codebase is structured as follows:
 
-*   **`acquire.py`**: CLI entry-point script for data acquisition. It handles argument parsing (simulator, real QPU, or circuit drawing, shots, endianness) and prints the structured JSON output with metadata.
-*   **`lib/`**: Directory containing the project's internal modules:
-    *   **`lib/__init__.py`**: Initializer that exposes `lib` as a Python package.
-    *   **`lib/acquisition.py`**: Contains the core logic and programmatic API (`measure_observable` and `measure_all_observables`) for executing the quantum circuits and gathering measurement statistics.
-    *   **`lib/circuits_catalog.py`**: A catalog of pre-defined quantum circuits. The CLI dynamically discovers states defined here (e.g., `ghz`, `phi_plus`, `w`, `random`).
-    *   **`lib/utils.py`**: Contains all shared mathematical utilities, including Pauli basis generation, match filtering, and average expectation calculation for marginal operators.
+*   **`pyproject.toml`**: The package configuration file defining dependencies and the CLI entry point.
+*   **`qtomos/`**: Directory containing the project's internal modules and CLI:
+    *   **`qtomos/__init__.py`**: Initializer that exposes `qtomos` as a Python package.
+    *   **`qtomos/cli.py`**: CLI entry-point script for data acquisition. It handles argument parsing (simulator, real QPU, or circuit drawing, shots, endianness) and prints the structured JSON output with metadata.
+    *   **`qtomos/acquisition.py`**: Contains the core logic and programmatic API (`measure_observable` and `measure_all_observables`) for executing the quantum circuits and gathering measurement statistics.
+    *   **`qtomos/circuits_catalog.py`**: A catalog of pre-defined quantum circuits. The CLI dynamically discovers states defined here (e.g., `ghz`, `phi_plus`, `w`, `random`).
+    *   **`qtomos/utils.py`**: Contains all shared mathematical utilities, including Pauli basis generation, match filtering, and average expectation calculation for marginal operators.
 *   **`tests/`**: Directory for automated tests:
     *   **`tests/test_tomography.py`**: Unit test suite to validate supporting mathematical operations.
 

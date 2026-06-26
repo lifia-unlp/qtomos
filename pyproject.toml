@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qtomos"
+version = "0.1.0"
+authors = [
+  { name="Tomas", email="tomas@example.com" },
+]
+description = "A SpinQ quantum state tomography data acquisition toolset"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "spinqit",
+    "python-dotenv",
+]
+
+[project.scripts]
+qtomos = "qtomos.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["qtomos*"]
