@@ -30,8 +30,9 @@ results = measure_all_observables(
 )
 
 # 3. Analyze the results
-print(f"Total Observables Measured: {len(results)}")
-print(json.dumps(results["XXZ"], indent=2))
+measurements = results["measurements"]
+print(f"Total Observables Measured: {len(measurements)}")
+print(json.dumps(measurements["XXZ"], indent=2))
 ```
 
 ### Parameters for `measure_all_observables`
@@ -58,7 +59,7 @@ result = measure_observable(
     shots=500
 )
 
-print(result["counts"])
+print(result["XY"]["counts"])
 ```
 
 ### Parameters for `measure_observable`
@@ -84,7 +85,7 @@ circuit << (CX, [0, 1])
 
 # 2. Run tomography on your custom circuit
 results = measure_all_observables(circuit, mode="sim")
-print(results["XX"]["counts"])
+print(results["measurements"]["XX"]["counts"])
 ```
 
 ## Connecting to the QPU
