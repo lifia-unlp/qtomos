@@ -20,7 +20,7 @@ def main():
     parser.add_argument("-m", "--mode", choices=["sim", "qpu", "draw"], required=True, help="Execution mode: sim (simulator), qpu (real computer), or draw (print circuit)")
     parser.add_argument("-c", "--circuit", choices=list(circuit_funcs.keys()), required=True, help="Circuit to prepare")
     parser.add_argument("-q", "--qubits", type=int, help="Number of qubits (inferred from observable if omitted, defaults to 3)")
-    parser.add_argument("--shots", type=int, default=1024, help="Number of shots for execution")
+    parser.add_argument("-s", "--shots", type=int, default=1024, help="Number of shots for execution")
     
     parser.add_argument("-f", "--file", type=str, required=True, help="Output JSON file path")
     parser.add_argument("-o", "--observable", type=str, help="Measure a single observable (e.g., XX, XYZ)")
