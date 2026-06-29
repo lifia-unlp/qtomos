@@ -95,10 +95,10 @@ from dotenv import load_dotenv
 
 load_dotenv() # Assumes a .env file is present in the notebook directory
 
-os.environ["IP"] = "192.168.172.233"
-os.environ["PORT"] = "50177"
-os.environ["USERNAME"] = "your_username"
-os.environ["PASSWORD"] = "your_password"
+os.environ["QTOMOS_IP"] = "ip-of-your-spinquasar-server"
+os.environ["QTOMOS_PORT"] = "port-of-your-spinquasar-server"
+os.environ["QTOMOS_USERNAME"] = "your_username"
+os.environ["QTOMOS_PASSWORD"] = "your_password"
 
 # Now measure against the real hardware
 results = measure_all_observables(circuit, mode="qpu")

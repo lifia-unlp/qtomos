@@ -48,10 +48,10 @@ Before running on the real hardware (`--mode qpu`), you need to configure your e
 
 Create a `.env` file in the directory where you are running the command:
 ```env
-IP=192.168.172.233
-PORT=50177
-USERNAME=your_username
-PASSWORD=your_password
+QTOMOS_IP=ip-of-your-spinquasar-server
+QTOMOS_PORT=port-of-your-spinquasar-server
+QTOMOS_USERNAME=your_username
+QTOMOS_PASSWORD=your_password
 ```
 
 Then, execute the command:

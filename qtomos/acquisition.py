@@ -63,19 +63,33 @@ def simulate(c: Circuit, shots: int = 1024):
     return result.counts
 
 def run(c: Circuit, shots: int = 1024):
-    IP = os.environ.get("IP")
-    PORT = int(os.environ.get("PORT"))
-    USERNAME = os.environ.get("USERNAME")        
-    PASSWORD = os.environ.get("PASSWORD")
+    ip = os.environ.get("QTOMOS_IP")
+    port_str = os.environ.get("QTOMOS_PORT")
+    username = os.environ.get("QTOMOS_USERNAME")        
+    password = os.environ.get("QTOMOS_PASSWORD")
+    
+    missing = []
+    if not ip: missing.append("QTOMOS_IP")
+    if not port_str: missing.append("QTOMOS_PORT")
+    if not username: missing.append("QTOMOS_USERNAME")
+    if not password: missing.append("QTOMOS_PASSWORD")
+    
+    if missing:
+        raise ValueError(f"Missing required environment variables for QPU connection: {', '.join(missing)}")
+        
+    try:
+        port = int(port_str)
+    except ValueError:
+        raise ValueError(f"QTOMOS_PORT must be an integer, but got: '{port_str}'")
         
     comp = get_compiler("native")
     optimization_level = 0
     exe = comp.compile(c, optimization_level)   
     engine = get_nmr()
     config = NMRConfig()
-    config.configure_ip(IP)
-    config.configure_port(PORT)
-    config.configure_account(USERNAME, PASSWORD)
+    config.configure_ip(ip)
+    config.configure_port(port)
+    config.configure_account(username, password)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     task_name = getattr(c, 'name', "circuit")
     task_desc = f"Execution of {task_name} at {timestamp}"
