@@ -3,13 +3,10 @@
 import copy
 import datetime
 import os
-from dotenv import load_dotenv
 
 from spinqit import NMRConfig, get_basic_simulator, get_compiler, BasicSimulatorConfig, get_nmr, draw as sq_draw, Circuit
 from spinqit import H, Sd, QasmBackend
 from spinqit.backend.nmr_backend import NMRBackend
-
-load_dotenv()
 
 TWO_QUBIT_OBSERVABLES = [
     "XX", "XY", "XZ",
@@ -62,25 +59,14 @@ def simulate(c: Circuit, shots: int = 1024):
     result = engine.execute(exe, config)
     return result.counts
 
-def run(c: Circuit, shots: int = 1024):
-    ip = os.environ.get("QTOMOS_IP")
-    port_str = os.environ.get("QTOMOS_PORT")
-    username = os.environ.get("QTOMOS_USERNAME")        
-    password = os.environ.get("QTOMOS_PASSWORD")
-    
-    missing = []
-    if not ip: missing.append("QTOMOS_IP")
-    if not port_str: missing.append("QTOMOS_PORT")
-    if not username: missing.append("QTOMOS_USERNAME")
-    if not password: missing.append("QTOMOS_PASSWORD")
-    
-    if missing:
-        raise ValueError(f"Missing required environment variables for QPU connection: {', '.join(missing)}")
+def run(c: Circuit, shots: int = 1024, qpu_config: dict = None):
+    if not qpu_config:
+        raise ValueError("qpu_config is required when running on QPU")
         
-    try:
-        port = int(port_str)
-    except ValueError:
-        raise ValueError(f"QTOMOS_PORT must be an integer, but got: '{port_str}'")
+    ip = qpu_config.get("ip")
+    port = qpu_config.get("port")
+    username = qpu_config.get("username")
+    password = qpu_config.get("password")
         
     comp = get_compiler("native")
     optimization_level = 0
@@ -112,7 +98,7 @@ def normalize_counts(counts):
         for bitstring, count in counts.items()
     }
 
-def measure_observable(circuit: Circuit, observable: str, mode: str, shots: int = 1024):
+def measure_observable(circuit: Circuit, observable: str, mode: str, shots: int = 1024, qpu_config: dict = None):
     circuit_name = getattr(circuit, 'name', 'circuit')
     print(f"Starting measurement task for circuit '{circuit_name}', observable '{observable}'...")
     
@@ -138,7 +124,7 @@ def measure_observable(circuit: Circuit, observable: str, mode: str, shots: int 
         draw(c)
         counts = {}
     elif mode == "qpu":
-        counts = run(c, shots)
+        counts = run(c, shots, qpu_config)
     else:
         counts = simulate(c, shots)
         
@@ -162,14 +148,14 @@ def measure_observable(circuit: Circuit, observable: str, mode: str, shots: int 
         }
     }
 
-def measure_all_observables(circuit: Circuit, mode: str, shots: int = 1024):
+def measure_all_observables(circuit: Circuit, mode: str, shots: int = 1024, qpu_config: dict = None):
     start_time = datetime.datetime.now().astimezone().isoformat()
     results = {}
     qubits = circuit.qubits_num
     observables = TWO_QUBIT_OBSERVABLES if qubits == 2 else THREE_QUBIT_OBSERVABLES
     
     for observable in observables:
-        obs_data = measure_observable(circuit, observable, mode, shots)
+        obs_data = measure_observable(circuit, observable, mode, shots, qpu_config)
         res = obs_data[observable]
         
         # Remove common metadata properties to avoid duplication

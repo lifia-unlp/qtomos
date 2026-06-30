@@ -41,18 +41,50 @@ def main():
     if args.observable and len(args.observable) != c.qubits_num:
         parser.error(f"Length of observable '{args.observable}' ({len(args.observable)}) does not match the actual circuit size ({c.qubits_num} qubits).")
 
+    qpu_config = None
+    if args.mode == "qpu":
+        import os
+        ip = os.environ.get("QTOMOS_IP")
+        port_str = os.environ.get("QTOMOS_PORT")
+        username = os.environ.get("QTOMOS_USERNAME")
+        password = os.environ.get("QTOMOS_PASSWORD")
+        
+        missing = []
+        if not ip: missing.append("QTOMOS_IP")
+        if not port_str: missing.append("QTOMOS_PORT")
+        if not username: missing.append("QTOMOS_USERNAME")
+        if not password: missing.append("QTOMOS_PASSWORD")
+        
+        if missing:
+            parser.error(f"Missing required environment variables for QPU connection: {', '.join(missing)}")
+            
+        try:
+            port = int(port_str)
+        except ValueError:
+            parser.error(f"QTOMOS_PORT must be an integer, but got: '{port_str}'")
+
+        print(f"Using QPU configuration: IP={ip}, PORT={port}, USERNAME={username}, PASSWORD={password}")
+        qpu_config = {
+            "ip": ip,
+            "port": port,
+            "username": username,
+            "password": password
+        }
+
     if args.observable:
         output = measure_observable(
             circuit=c,
             observable=args.observable,
             mode=args.mode,
-            shots=args.shots
+            shots=args.shots,
+            qpu_config=qpu_config
         )
     else:
         output = measure_all_observables(
             circuit=c,
             mode=args.mode,
-            shots=args.shots
+            shots=args.shots,
+            qpu_config=qpu_config
         )
 
     with open(args.file, "w") as f:
