@@ -8,6 +8,13 @@ from spinqit import NMRConfig, get_basic_simulator, get_compiler, BasicSimulator
 from spinqit import H, Sd, QasmBackend
 from spinqit.backend.nmr_backend import NMRBackend
 
+# The following lists are hardcoded for clarity.
+# To generate the list of observables dynamically for `n` qubits, you can use `itertools.product`:
+# 
+# import itertools
+# def generate_observables(n: int) -> list[str]:
+#     return ["".join(p) for p in itertools.product(["X", "Y", "Z"], repeat=n)]
+
 TWO_QUBIT_OBSERVABLES = [
     "XX", "XY", "XZ",
     "YX", "YY", "YZ",
