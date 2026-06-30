@@ -22,7 +22,7 @@ def main():
     parser.add_argument("-q", "--qubits", type=int, help="Number of qubits (inferred from observable if omitted, defaults to 3)")
     parser.add_argument("-s", "--shots", type=int, default=1024, help="Number of shots for execution")
     
-    parser.add_argument("-f", "--file", type=str, required=True, help="Output JSON file path")
+    parser.add_argument("-f", "--file", type=str, help="Output JSON file path")
     parser.add_argument("-o", "--observable", type=str, help="Measure a single observable (e.g., XX, XYZ)")
     
     args = parser.parse_args()
@@ -36,6 +36,18 @@ def main():
     # Retrieve the dynamically selected circuit creation function
     create_func = circuit_funcs[args.circuit]
     c = create_func(num_qubits)
+    
+    # Auto-generate filename if not provided
+    if not args.file:
+        import os
+        run_number = 1
+        while True:
+            filename = f"{args.circuit}-{c.qubits_num}-{args.mode}-run_{run_number}.json"
+            if not os.path.exists(filename):
+                args.file = filename
+                break
+            run_number += 1
+        print(f"Output file not specified. Using auto-generated filename: {args.file}")
     
     # Check for inconsistencies
     if args.observable and len(args.observable) != c.qubits_num:
