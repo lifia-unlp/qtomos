@@ -7,9 +7,10 @@ The `acquire` CLI is the primary way to interact with the data acquisition tools
 ## Basic Usage
 
 The CLI requires you to specify the `--circuit` and the `--mode` explicitly for every run.
+The output file (`--file` or `-f`) is optional. If omitted, a filename will be automatically generated for you.
 
 ```bash
-acquire --circuit ghz --mode sim --file output.json
+acquire --circuit ghz --mode sim
 ```
 
 ## Execution Modes
@@ -27,9 +28,9 @@ Available predefined states include: `ghz`, `phi_plus`, `w`, and `random`.
 
 ```bash
 # Acquire a full tomography for a W state
-acquire --circuit w --mode sim --file output.json
+acquire --circuit w --mode sim
 
-# Acquire a full tomography for a random state
+# Acquire a full tomography for a random state (with explicit output file)
 acquire --circuit random --mode sim --file output.json
 ```
 
@@ -68,9 +69,16 @@ By default, execution uses `1024` shots. You can customize the number of shots u
 acquire --circuit ghz --mode sim --file output.json --shots 500
 ```
 
-## Output Format
+## Output Format & Auto-naming
 
-The `--file` flag defines where the output JSON is saved. It has the following structure:
+The `--file` flag defines where the output JSON is saved. 
+
+**Auto-naming**: If you omit the `--file` flag, the CLI will automatically generate a filename in the current directory using the following pattern:
+`[circuit_name]-[qubits]-[mode]-run_[N].json`
+
+Where `[N]` is an incrementing integer starting from 1. For example, if you run a 3-qubit GHZ circuit in simulator mode, it will generate `ghz-3-sim-run_1.json`. If that file already exists, it will use `ghz-3-sim-run_2.json`, and so on.
+
+The output JSON has the following structure:
 
 ```json
 {
