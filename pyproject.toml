@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qtomos"
-version = "0.1.4"
+version = "0.1.5"
 authors = [
   { name="Marcos Lammers", email="marcos.lammers@lifia.info.unlp.edu.ar" },
   { name="Alejandro Fernandez", email="alejandro.fernandez@lifia.info.unlp.edu.ar" },
