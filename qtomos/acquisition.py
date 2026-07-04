@@ -3,6 +3,7 @@
 import copy
 import datetime
 import os
+import time
 
 from spinqit import NMRConfig, get_basic_simulator, get_compiler, BasicSimulatorConfig, get_nmr, draw as sq_draw, Circuit
 from spinqit import H, Sd, QasmBackend
@@ -162,7 +163,20 @@ def measure_all_observables(circuit: Circuit, mode: str, shots: int = 1024, qpu_
     observables = TWO_QUBIT_OBSERVABLES if qubits == 2 else THREE_QUBIT_OBSERVABLES
     
     for observable in observables:
-        obs_data = measure_observable(circuit, observable, mode, shots, qpu_config)
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                obs_data = measure_observable(circuit, observable, mode, shots, qpu_config)
+                break
+            except Exception as e:
+                print(f"Error measuring observable '{observable}' (attempt {attempt + 1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    print("Waiting 15 seconds before retrying...")
+                    time.sleep(15)
+                else:
+                    print(f"Max retries exceeded for observable '{observable}'. Aborting execution.")
+                    raise e
+                    
         res = obs_data[observable]
         
         # Remove common metadata properties to avoid duplication
@@ -172,6 +186,9 @@ def measure_all_observables(circuit: Circuit, mode: str, shots: int = 1024, qpu_
         res.pop("endian", None)
         
         results[observable] = res
+        
+        if mode == "qpu":
+            time.sleep(5)
 
     end_time = datetime.datetime.now().astimezone().isoformat()
     
